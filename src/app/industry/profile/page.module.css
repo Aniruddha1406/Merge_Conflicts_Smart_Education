@@ -1,0 +1,12 @@
+.page { display: flex; flex-direction: column; gap: var(--space-6); }
+.title { font-family: var(--font-display); font-size: var(--text-3xl); color: var(--cf-800); }
+.layout { display: grid; grid-template-columns: 320px 1fr; gap: var(--space-6); align-items: start; }
+.infoCard { background: var(--db-700); border-radius: var(--radius-xl); padding: var(--space-6); color: var(--text-on-dark); display: flex; flex-direction: column; gap: var(--space-6); }
+.partnerHeader { display: flex; align-items: flex-start; gap: var(--space-4); }
+.partnerIcon { width: 52px; height: 52px; border-radius: var(--radius-lg); background: var(--ai-500); color: var(--cf-900); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: var(--weight-bold); flex-shrink: 0; }
+.partnerName { font-family: var(--font-display); font-size: var(--text-lg); color: var(--warm-50); line-height: var(--leading-snug); }
+.partnerSector { font-size: var(--text-xs); color: rgba(255,255,255,0.5); margin-top: var(--space-1); }
+.section { display: flex; flex-direction: column; gap: var(--space-3); }
+.tagList { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.sectionTitle { font-family: var(--font-display); font-size: var(--text-xl); color: var(--cf-800); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }

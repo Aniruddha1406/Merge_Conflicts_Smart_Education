@@ -1,0 +1,86 @@
+.page { display: flex; flex-direction: column; gap: var(--space-6); }
+
+/* Partner Banner */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  background: var(--db-700);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6) var(--space-8);
+  flex-wrap: wrap;
+}
+
+.bannerLeft { display: flex; align-items: flex-start; gap: var(--space-5); }
+
+.partnerIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--ai-500);
+  color: var(--cf-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  flex-shrink: 0;
+}
+
+.pageTitle { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--warm-50); }
+.pageSubtitle { font-size: var(--text-sm); color: rgba(255,255,255,0.45); margin-top: var(--space-1); }
+
+.budgetWidget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 180px;
+}
+
+.budgetPct {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  color: var(--ai-300);
+  line-height: 1;
+}
+
+/* KPIs */
+.kpiGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+
+/* Layout */
+.twoCol { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--space-8); align-items: start; }
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sectionTitle { font-family: var(--font-display); font-size: var(--text-xl); color: var(--cf-800); }
+.sectionHint { font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-4); }
+
+.challengeTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--cf-800);
+  line-height: var(--leading-snug);
+  flex: 1;
+}
+
+.commitTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--cf-800);
+  margin-bottom: var(--space-1);
+  line-height: var(--leading-snug);
+}
+
+@media (max-width: 1200px) { .kpiGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .twoCol { grid-template-columns: 1fr; } }

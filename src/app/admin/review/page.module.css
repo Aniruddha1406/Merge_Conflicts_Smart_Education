@@ -1,0 +1,11 @@
+.page { display: flex; flex-direction: column; gap: var(--space-6); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.title { font-family: var(--font-display); font-size: var(--text-3xl); color: var(--cf-800); margin-bottom: var(--space-1); }
+.subtitle { font-size: var(--text-base); color: var(--text-secondary); }
+.clusterList { display: flex; flex-direction: column; gap: var(--space-5); }
+.clusterTitle { font-family: var(--font-display); font-size: var(--text-xl); color: var(--cf-800); line-height: var(--leading-snug); }
+.metricsBox { display: flex; gap: var(--space-6); }
+.metricItem { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.duplicateList { display: flex; flex-direction: column; gap: var(--space-3); }
+.duplicateRow { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3); background: var(--warm-50); border-radius: var(--radius-md); border: 1px solid var(--border-light); }
+.scoreTag { display: flex; flex-direction: column; align-items: center; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); min-width: 52px; }

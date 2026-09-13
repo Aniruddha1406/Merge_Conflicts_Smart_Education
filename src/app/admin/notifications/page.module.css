@@ -1,0 +1,22 @@
+.page { display: flex; flex-direction: column; gap: var(--space-6); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.title { font-family: var(--font-display); font-size: var(--text-3xl); color: var(--cf-800); margin-bottom: var(--space-1); }
+.subtitle { font-size: var(--text-base); color: var(--text-secondary); }
+.filterTabs { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.notifList { display: flex; flex-direction: column; gap: var(--space-3); }
+.notifRow {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.notifRow:hover { background: var(--warm-50); box-shadow: var(--shadow-sm); }
+.notifRow.unread { border-left: 3px solid var(--ai-500); }
+.notifMeta { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.notifTitle { font-family: var(--font-display); font-size: var(--text-base); font-weight: var(--weight-semibold); color: var(--cf-800); }
+.unreadDot { width: 8px; height: 8px; border-radius: 50%; background: var(--ai-500); display: block; flex-shrink: 0; margin-left: auto; }

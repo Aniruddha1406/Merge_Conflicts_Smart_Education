@@ -1,0 +1,21 @@
+.bar {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  background: var(--warm-50);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+}
+
+.search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.select {
+  min-width: 160px;
+  flex: 0 0 auto;
+}
