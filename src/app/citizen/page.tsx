@@ -1,10 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/authContext'
-import { useStore } from '@/lib/store'
-import { DASHBOARD_STATS } from '@/lib/mockData'
+import { getChallengesByUser, getAllChallenges } from '@/app/actions/challenges'
 import styles from './page.module.css'
 
 const STATUS_BADGE: Record<string, string> = {
@@ -16,31 +15,60 @@ const STATUS_BADGE: Record<string, string> = {
   'Resolved': 'badge-resolved',
 }
 
-// Simulate "my" submissions = first 3 in store
-const MY_IDS = ['SUB-001', 'SUB-002', 'SUB-003']
-const NEARBY_IDS = ['SUB-004', 'SUB-005', 'SUB-006']
+interface DbRow {
+  id: string
+  title: string
+  status: string
+  domain: string
+  district: string
+  endorsements: number
+  assigned_institution_name?: string | null
+  fit_score?: number | null
+}
 
 export default function CitizenDashboard() {
   const { user } = useAuth()
-  const { state, endorse } = useStore()
-  const [endorsed, setEndorsed] = useState<Set<string>>(new Set())
+  const [mySubmissions, setMySubmissions] = useState<DbRow[]>([])
+  const [nearby, setNearby] = useState<DbRow[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const mySubmissions = state.submissions.filter(s => MY_IDS.includes(s.id))
-  const nearby = state.submissions.filter(s => NEARBY_IDS.includes(s.id))
+  const loadData = useCallback(async () => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    try {
+      const rows = await getChallengesByUser(user.id)
+      setMySubmissions(rows as DbRow[])
+      
+      const allRows = await getAllChallenges()
+      // Filter out own submissions, keep top 3 urgency
+      const others = (allRows as DbRow[]).filter(r => r.district === user.district && !rows.find(my => my.id === r.id)).slice(0, 3)
+      setNearby(others)
+    } catch (e) {
+      console.error('Failed to load dashboard', e)
+    }
+    setLoading(false)
+  }, [user])
 
-  // Live stat counts from store
+  useEffect(() => { loadData() }, [loadData])
+
   const submitted = mySubmissions.filter(s => s.status === 'Submitted').length
   const inProgress = mySubmissions.filter(s => s.status === 'In Progress' || s.status === 'Assigned to Institution').length
   const pendingVerification = mySubmissions.filter(s => s.status === 'Pending Verification').length
   const resolved = mySubmissions.filter(s => s.status === 'Resolved').length
 
-  // Verification alert: any of my submissions pending verification
   const verifyPending = mySubmissions.find(s => s.status === 'Pending Verification')
 
-  function handleEndorse(id: string) {
-    if (endorsed.has(id)) return
-    endorse(id)
-    setEndorsed(e => new Set(e).add(id))
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.welcome}>
+          <h1 className={styles.pageTitle}>Loading dashboard...</h1>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -71,7 +99,7 @@ export default function CitizenDashboard() {
         ))}
       </div>
 
-      {/* Verification Alert — only when relevant */}
+      {/* Verification Alert */}
       {verifyPending && (
         <div className={styles.verificationAlert}>
           <div className={styles.alertContent}>
@@ -88,37 +116,32 @@ export default function CitizenDashboard() {
       )}
 
       <div className={styles.twoCol}>
-        {/* My Submissions — from store */}
+        {/* My Submissions */}
         <div>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>My Submissions</h2>
             <span className="badge badge-submitted">{mySubmissions.length}</span>
           </div>
           <div className={styles.submissionList}>
-            {mySubmissions.map(s => (
+            {mySubmissions.slice(0, 3).map(s => (
               <div className="card" key={s.id} style={{ marginBottom: 'var(--space-4)' }}>
                 <div className="card-body">
                   <div className={styles.submissionHeader}>
                     <h3 className={styles.submissionTitle}>{s.title}</h3>
-                    <span className={`badge ${STATUS_BADGE[s.status]}`}>{s.status}</span>
+                    <span className={`badge ${STATUS_BADGE[s.status] || 'badge-submitted'}`}>{s.status}</span>
                   </div>
                   <div className={styles.submissionMeta}>
                     <span className="tag tag-accent">{s.domain}</span>
                     <span className="text-xs text-tertiary">{s.district}</span>
                     <span className="text-xs text-tertiary">{s.endorsements} endorsements</span>
                   </div>
-                  {s.assignedInstitution && (
+                  {s.assigned_institution_name && (
                     <div className={styles.assignedLine}>
                       <span className="text-xs text-secondary">Assigned to</span>
                       <span className="text-xs font-semibold" style={{ color: 'var(--cf-800)' }}>
-                        {s.assignedInstitution}
-                        {s.fitScore && ` — ${Math.round(s.fitScore * 100)}% fit`}
+                        {s.assigned_institution_name}
+                        {s.fit_score && ` — ${Math.round(s.fit_score * 100)}% fit`}
                       </span>
-                    </div>
-                  )}
-                  {s.status === 'Pending Verification' && (
-                    <div style={{ marginTop: 'var(--space-3)' }}>
-                      <Link href="/citizen/my-submissions" className="btn btn-secondary btn-sm">Upload Verification Photo</Link>
                     </div>
                   )}
                 </div>
@@ -128,7 +151,7 @@ export default function CitizenDashboard() {
           <Link href="/citizen/my-submissions" className="btn btn-ghost btn-sm">View all my submissions</Link>
         </div>
 
-        {/* Nearby Challenges — live endorsement */}
+        {/* Nearby Challenges */}
         <div>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Nearby Challenges</h2>
@@ -140,37 +163,15 @@ export default function CitizenDashboard() {
                 <div className="card-body">
                   <div className={styles.submissionHeader}>
                     <h3 className={styles.submissionTitle}>{s.title}</h3>
-                    <span className={`badge ${STATUS_BADGE[s.status]}`}>{s.status}</span>
+                    <span className={`badge ${STATUS_BADGE[s.status] || 'badge-submitted'}`}>{s.status}</span>
                   </div>
                   <div className={styles.submissionMeta}>
                     <span className="tag tag-accent">{s.domain}</span>
                     <span className="text-xs text-tertiary">{s.district}</span>
                   </div>
-                  <div className={styles.endorseRow}>
-                    <span className="text-sm font-semibold" style={{ color: 'var(--cf-800)' }}>
-                      {s.endorsements} endorsements
-                    </span>
-                    <button
-                      className={`btn btn-sm ${endorsed.has(s.id) ? 'btn-primary' : 'btn-outline'}`}
-                      onClick={() => handleEndorse(s.id)}
-                      disabled={endorsed.has(s.id)}
-                    >
-                      {endorsed.has(s.id) ? 'Endorsed' : 'Endorse'}
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}
-          </div>
-          <Link href="/citizen/community" className="btn btn-ghost btn-sm">View community map</Link>
-
-          {/* Platform ticker */}
-          <div className={styles.ticker}>
-            <span className="text-xs text-secondary">
-              <strong style={{ color: 'var(--cf-800)' }}>{DASHBOARD_STATS.totalSubmissions.toLocaleString()}</strong> challenges tracked across
-              <strong style={{ color: 'var(--cf-800)' }}> {DASHBOARD_STATS.districtsCovered}</strong> districts —
-              <strong style={{ color: 'var(--ai-700)' }}> {DASHBOARD_STATS.resolvedSubmissions}</strong> resolved
-            </span>
           </div>
         </div>
       </div>

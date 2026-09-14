@@ -1,4 +1,7 @@
-'use client'
+import fs from 'fs'
+
+const file = 'src/app/university/page.tsx'
+const newContent = `'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '@/lib/authContext'
@@ -87,9 +90,9 @@ export default function UniversityDashboard() {
       <div className={styles.kpiGrid}>
         {[
           { label: 'Challenges in Queue', value: queue.length, sub: 'AI-routed to you (Live)' },
-          { label: 'Active Projects', value: activeProjects.length, sub: `${projects.filter(p => p.status === 'Completed').length} completed (Live)` },
+          { label: 'Active Projects', value: activeProjects.length, sub: \`\${projects.filter(p => p.status === 'Completed').length} completed (Live)\` },
           { label: 'Student Hours Logged', value: totalHours, sub: 'across all projects' },
-          { label: 'ABC Credits Generated', value: abcCredits, sub: `NEP 2020 compliant` },
+          { label: 'ABC Credits Generated', value: abcCredits, sub: \`NEP 2020 compliant\` },
         ].map(k => (
           <div className="stat-card" key={k.label}>
             <div className="stat-card-value">{k.value}</div>
@@ -126,12 +129,12 @@ export default function UniversityDashboard() {
                 </div>
                 <div className="card-body">
                   <div className="progress-bar" style={{ marginBottom: 'var(--space-4)' }}>
-                    <div className="progress-bar-fill fill-dark" style={{ width: `${(sub.fit_score ?? 0) * 100}%` }} />
+                    <div className="progress-bar-fill fill-dark" style={{ width: \`\${(sub.fit_score ?? 0) * 100}%\` }} />
                   </div>
                 </div>
                 <div className="card-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
                   <button className="btn btn-outline btn-sm">Decline</button>
-                  <Link href={`/university/queue/${sub.id}`} className="btn btn-primary btn-sm">Review & Accept</Link>
+                  <Link href={\`/university/queue/\${sub.id}\`} className="btn btn-primary btn-sm">Review & Accept</Link>
                 </div>
               </div>
             ))}
@@ -182,7 +185,7 @@ export default function UniversityDashboard() {
                         <p className="text-xs text-secondary" style={{ marginTop: 'var(--space-1)' }}>Industry: {p.industry_partner_name}</p>
                       )}
                     </div>
-                    <span className={`badge ${STATUS_BADGE[p.status]}`}>{p.status}</span>
+                    <span className={\`badge \${STATUS_BADGE[p.status]}\`}>{p.status}</span>
                   </div>
                 </div>
                 <div className="card-body" style={{ paddingTop: 0 }}>
@@ -191,7 +194,7 @@ export default function UniversityDashboard() {
                     <span className="text-xs font-semibold">{pct}%</span>
                   </div>
                   <div className="progress-bar" style={{ marginBottom: 'var(--space-3)' }}>
-                    <div className="progress-bar-fill fill-dark" style={{ width: `${pct}%` }} />
+                    <div className="progress-bar-fill fill-dark" style={{ width: \`\${pct}%\` }} />
                   </div>
                   {next && (
                     <p className="text-xs text-secondary">
@@ -200,7 +203,7 @@ export default function UniversityDashboard() {
                   )}
                 </div>
                 <div className="card-footer">
-                  <Link href={`/university/projects/${p.id}`} className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>
+                  <Link href={\`/university/projects/\${p.id}\`} className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>
                     Manage Project
                   </Link>
                 </div>
@@ -215,3 +218,7 @@ export default function UniversityDashboard() {
     </div>
   )
 }
+`
+
+fs.writeFileSync(file, newContent, 'utf8')
+console.log('REPLACED')

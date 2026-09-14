@@ -8,6 +8,8 @@ import Link from 'next/link'
 import Modal from '@/components/Modal'
 import styles from './page.module.css'
 
+import { createFundingCommitment } from '@/app/actions/projects'
+
 export default function ChallengeDetailPage() {
   const params = useParams()
   const id = params?.id as string
@@ -18,6 +20,7 @@ export default function ChallengeDetailPage() {
   const [type, setType] = useState<'CSR' | 'Seed Grant' | 'Co-Development'>('CSR')
   const [coPi, setCoPi] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!sub) return (
     <div className="empty-state" style={{ padding: 'var(--space-20)' }}>
@@ -27,8 +30,17 @@ export default function ChallengeDetailPage() {
     </div>
   )
 
-  function handleCommit(e: React.FormEvent) {
+  async function handleCommit(e: React.FormEvent) {
     e.preventDefault()
+    setIsSubmitting(true)
+    await createFundingCommitment({
+      challengeId: sub!.id,
+      partnerId: partner.id,
+      partnerName: partner.name,
+      institutionName: sub!.assignedInstitution || undefined,
+      amountLakhs: Number(amount),
+      type: type as any,
+    })
     addCommitment({
       id: `FC-${Date.now()}`,
       submissionId: sub!.id,
@@ -40,6 +52,7 @@ export default function ChallengeDetailPage() {
       status: 'Active',
       disbursedLakhs: 0,
     })
+    setIsSubmitting(false)
     setSubmitted(true)
   }
 
