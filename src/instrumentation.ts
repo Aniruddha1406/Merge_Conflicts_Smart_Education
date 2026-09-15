@@ -1,9 +1,0 @@
-// src/instrumentation.ts
-// Runs once on Next.js server boot
-
-export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { initDatabase } = await import('@/lib/db/init')
-    await initDatabase()
-  }
-}

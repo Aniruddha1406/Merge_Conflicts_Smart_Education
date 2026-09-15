@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.sicp-data/
+*.db*
+.env
+.env*.local
