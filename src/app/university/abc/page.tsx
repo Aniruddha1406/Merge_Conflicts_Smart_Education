@@ -52,7 +52,10 @@ export default function ABCPage() {
           <h1 className={styles.title}>NEP 2020 — ABC Compliance Report</h1>
           <p className={styles.subtitle}>Academic Bank of Credits tracking for all SICP-linked student projects this semester.</p>
         </div>
-        <button className="btn btn-secondary" onClick={handleExport}>Export CSV</button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-outline" onClick={() => window.print()}>Print Official Report</button>
+          <button className="btn btn-secondary" onClick={handleExport}>Export CSV</button>
+        </div>
       </div>
 
       <div className={styles.statsGrid}>

@@ -1,7 +1,8 @@
 'use client'
 
-import { useStore } from '@/lib/store'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { getAllProjects } from '@/app/actions/projects'
 import styles from './page.module.css'
 
 const STATUS_BADGE: Record<string, string> = {
@@ -12,16 +13,43 @@ const STATUS_BADGE: Record<string, string> = {
   'Stalled': 'badge-review',
 }
 
+interface DisplayProject {
+  id: string
+  title: string
+  institution_name: string
+  industry_partner_name?: string | null
+  status: string
+  start_date: string
+  target_date: string
+  milestones: { id: string; title: string; completed: number; due_date: string }[]
+  team: { name: string; role: string }[]
+}
+
 export default function ProjectsPage() {
-  const { state } = useStore()
-  const projects = state.projects
+  const [projects, setProjects] = useState<DisplayProject[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const rows = await getAllProjects()
+      setProjects(rows as any[])
+    } catch (e) {
+      console.error('Failed to load projects from DB', e)
+    }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { loadData() }, [loadData])
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Active Projects</h1>
-          <p className={styles.subtitle}>All ongoing research and innovation projects assigned to your institution.</p>
+          <p className={styles.subtitle}>
+            {loading ? 'Loading projects from database...' : `${projects.length} project(s) from database.`}
+          </p>
         </div>
       </div>
 
@@ -29,7 +57,7 @@ export default function ProjectsPage() {
         {projects.map(p => {
           const totalMilestones = p.milestones.length
           const completed = p.milestones.filter(m => m.completed).length
-          const pct = Math.round((completed / totalMilestones) * 100)
+          const pct = totalMilestones > 0 ? Math.round((completed / totalMilestones) * 100) : 0
           const next = p.milestones.find(m => !m.completed)
 
           return (
@@ -47,17 +75,17 @@ export default function ProjectsPage() {
                 <div style={{ display: 'flex', gap: 'var(--space-5)', marginBottom: 'var(--space-4)' }}>
                   <div>
                     <span className="text-xs text-secondary">Institution</span>
-                    <p className="text-sm font-semibold">{p.institution}</p>
+                    <p className="text-sm font-semibold">{p.institution_name}</p>
                   </div>
-                  {p.industryPartner && (
+                  {p.industry_partner_name && (
                     <div>
                       <span className="text-xs text-secondary">Industry Partner</span>
-                      <p className="text-sm font-semibold">{p.industryPartner}</p>
+                      <p className="text-sm font-semibold">{p.industry_partner_name}</p>
                     </div>
                   )}
                   <div>
                     <span className="text-xs text-secondary">Target Date</span>
-                    <p className="text-sm font-semibold">{new Date(p.targetDate).toLocaleDateString('en-IN')}</p>
+                    <p className="text-sm font-semibold">{new Date(p.target_date).toLocaleDateString('en-IN')}</p>
                   </div>
                 </div>
 
@@ -75,7 +103,7 @@ export default function ProjectsPage() {
                   <div style={{ padding: 'var(--space-3)', background: 'var(--ai-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--ai-200)' }}>
                     <span className="text-xs text-secondary">Next milestone</span>
                     <p className="text-sm font-semibold" style={{ color: 'var(--cf-800)' }}>{next.title}</p>
-                    <p className="text-xs text-tertiary">Due: {new Date(next.dueDate).toLocaleDateString('en-IN')}</p>
+                    <p className="text-xs text-tertiary">Due: {new Date(next.due_date).toLocaleDateString('en-IN')}</p>
                   </div>
                 )}
               </div>
@@ -87,6 +115,17 @@ export default function ProjectsPage() {
             </div>
           )
         })}
+        {!loading && projects.length === 0 && (
+          <div className="card">
+            <div className="card-body">
+              <div className="empty-state">
+                <div className="empty-state-mark">0</div>
+                <h5>No projects yet</h5>
+                <p className="text-sm text-secondary">Accept a challenge from the queue to create your first project.</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
