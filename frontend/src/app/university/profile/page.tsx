@@ -53,7 +53,7 @@ export default function UniversityProfilePage() {
           </div>
 
           <div className={styles.section}>
-            <span className="text-xs text-secondary font-semibold uppercase" style={{ letterSpacing: 'var(--tracking-wider)' }}>Active Projects on SICP</span>
+            <span className="text-xs text-secondary font-semibold uppercase" style={{ letterSpacing: 'var(--tracking-wider)' }}>Active Projects on SRIJAN</span>
             <p className="text-2xl font-bold" style={{ color: 'var(--cf-800)', fontFamily: 'var(--font-display)' }}>{inst.activeProjects}</p>
           </div>
         </div>

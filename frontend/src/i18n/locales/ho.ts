@@ -1,6 +1,6 @@
 export default {
   nav: {
-    title: 'SICP Jharkhand',
+    title: 'SRIJAN',
     subtitle: 'Samajik Nawa Goṛo Portal',
     howItWorks: 'Nen chikaleka kamiya',
     portals: 'Portalko',

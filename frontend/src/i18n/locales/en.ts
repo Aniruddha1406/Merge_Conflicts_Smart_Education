@@ -1,7 +1,7 @@
 export default {
   nav: {
-    title: 'SICP Jharkhand',
-    subtitle: 'Societal Innovation Collaboration Portal',
+    title: 'SRIJAN',
+    subtitle: 'Societal Research, Innovation & Jharkhand Academic Network',
     howItWorks: 'How It Works',
     portals: 'Portals',
     impact: 'Impact',
@@ -13,7 +13,7 @@ export default {
     nepTag: 'NEP 2020 Aligned',
     titleMain: 'Turning Societal Challenges',
     titleAccent: 'into Collaborative Solutions',
-    desc: 'The Societal Innovation Collaboration Portal connects citizens of Jharkhand with Higher Education Institutions and industry partners to research, innovate, and deploy solutions to real local challenges — from water access to healthcare, agriculture to accessibility.',
+    desc: 'The Societal Research, Innovation & Jharkhand Academic Network connects citizens of Jharkhand with Higher Education Institutions and industry partners to research, innovate, and deploy solutions to real local challenges — from water access to healthcare, agriculture to accessibility.',
     btnSubmit: 'Submit a Civic Challenge',
     btnDashboard: 'View Live Dashboard',
     deptName: 'Department of Higher & Technical Education, Govt. of Jharkhand',
@@ -91,7 +91,7 @@ export default {
   about: {
     eyebrow: 'NEP 2020 Alignment',
     title: 'Building Jharkhand\'s First Demand-Linked Societal Innovation Ecosystem',
-    desc1: 'The National Education Policy 2020 mandates that universities engage deeply with society and link academic work to real community needs. SICP operationalises this mandate for Jharkhand — every student project on the platform is mapped to the Academic Bank of Credits framework, ensuring verified, portable credit recognition.',
+    desc1: 'The National Education Policy 2020 mandates that universities engage deeply with society and link academic work to real community needs. SRIJAN operationalises this mandate for Jharkhand — every student project on the platform is mapped to the Academic Bank of Credits framework, ensuring verified, portable credit recognition.',
     desc2: 'By combining vernacular-first citizen ingestion, AI-assisted routing, and geo-fenced proof of impact, the portal creates an accountable pipeline from problem identification to on-ground resolution — with full transparency at every step.',
     btnDashboard: 'View Transparency Dashboard',
     resolutionRate: 'Resolution Rate',
@@ -122,6 +122,6 @@ export default {
     accessibility: 'Accessibility Statement',
     rti: 'RTI',
     copy1: 'A Government of Jharkhand initiative under the Department of Higher and Technical Education. Built in alignment with National Education Policy 2020.',
-    copy2: '© 2026 Societal Innovation Collaboration Portal'
+    copy2: '© 2026 Societal Research, Innovation & Jharkhand Academic Network'
   }
 };

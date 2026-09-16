@@ -56,7 +56,7 @@ export default function PortalLayout({ children, navSections, portalLabel }: Por
             </svg>
           </Link>
           <div>
-            <div className={styles.logoTitle}>SICP</div>
+            <div className={styles.logoTitle}>SRIJAN</div>
             <div className={styles.portalLabel}>{portalLabel}</div>
           </div>
         </div>

@@ -69,7 +69,7 @@ export default function IndustryDashboard() {
       {/* KPI Row */}
       <div className={styles.kpiGrid}>
         {[
-          { label: 'Total Committed', value: `₹${totalCommitted}L`, sub: 'across SICP projects' },
+          { label: 'Total Committed', value: `₹${totalCommitted}L`, sub: 'across SRIJAN projects' },
           { label: 'Total Disbursed', value: `₹${totalDisbursed}L`, sub: `${disbursePct}% utilisation` },
           { label: 'Active Commitments', value: myCommitments.length || partner.activeCommitments, sub: 'live on platform' },
           { label: 'IPs & Patents Declared', value: OUTCOME_METRICS.patentsFiled, sub: `${OUTCOME_METRICS.patentsPending} pending` },

@@ -323,10 +323,10 @@ export default function LandingPage() {
                   <circle cx="10" cy="21" r="2" fill="currentColor" />
                   <circle cx="22" cy="11" r="2" fill="currentColor" />
                 </svg>
-                <span>SICP Jharkhand</span>
+                <span>SRIJAN</span>
               </div>
               <p className={styles.footerTagline}>
-                Societal Innovation Collaboration Portal<br />
+                Societal Research, Innovation & Jharkhand Academic Network<br />
                 {t('footer.deptName')}<br />
                 {t('footer.govtName')}
               </p>

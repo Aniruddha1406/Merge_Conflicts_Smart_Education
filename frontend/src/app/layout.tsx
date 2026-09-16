@@ -6,8 +6,8 @@ import { LanguageProvider } from '@/i18n/LanguageContext'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Societal Innovation Collaboration Portal — Government of Jharkhand',
-    template: '%s | SICP Jharkhand',
+    default: 'Societal Research, Innovation & Jharkhand Academic Network — Government of Jharkhand',
+    template: '%s | SRIJAN',
   },
   description:
     'A platform that crowdsources local societal challenges from citizens and routes them to Higher Education Institutions and industry partners for collaborative research, innovation, and deployment.',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   creator: 'Department of Higher and Technical Education, Jharkhand',
   metadataBase: new URL('https://sicp.jharkhand.gov.in'),
   openGraph: {
-    title: 'Societal Innovation Collaboration Portal',
+    title: 'Societal Research, Innovation & Jharkhand Academic Network',
     description:
       'Bridging citizens, universities, and industry to solve Jharkhand\'s societal challenges.',
     type: 'website',

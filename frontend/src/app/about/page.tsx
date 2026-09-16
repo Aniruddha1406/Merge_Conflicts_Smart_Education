@@ -34,7 +34,7 @@ export default function AboutPage() {
               Vision &amp; Mandate
             </h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '1rem' }}>
-              The National Education Policy 2020 mandates universities to engage deeply with society, linking academic research to real community needs. SICP operationalises this mandate for the state of Jharkhand — creating a structured pipeline from citizen-reported problems to institution-led solutions verified by the community itself.
+              The National Education Policy 2020 mandates universities to engage deeply with society, linking academic research to real community needs. SRIJAN operationalises this mandate for the state of Jharkhand — creating a structured pipeline from citizen-reported problems to institution-led solutions verified by the community itself.
             </p>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
               The platform is administered by the Department of Higher and Technical Education, Government of Jharkhand, and is designed to serve the state&apos;s 24 districts and all citizens, educational institutions, industry partners, and government agencies.

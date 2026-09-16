@@ -1,6 +1,6 @@
-export default {
+﻿export default {
   nav: {
-    title: 'SICP झारखण्ड',
+    title: 'SRIJAN',
     subtitle: 'सामाजिक नवाचार सहयोग पोर्टल',
     howItWorks: 'ई कैसे काम करेला',
     portals: 'पोर्टल मन',

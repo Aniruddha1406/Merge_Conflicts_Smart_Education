@@ -1,6 +1,6 @@
 export default {
   nav: {
-    title: 'SICP ᱡᱷᱟᱨᱠᱷᱚᱸᱰ',
+    title: 'SRIJAN ᱡᱷᱟᱨᱠᱷᱚᱸᱰ',
     subtitle: 'ᱥᱟᱶᱛᱟᱨᱤ ᱱᱟᱣᱟᱱ ᱜᱚᱲᱚ ᱯᱚᱨᱴᱟᱞ',
     howItWorks: 'ᱱᱚᱶᱟ ᱪᱮᱫ ᱞᱮᱠᱟ ᱠᱟᱹᱢᱤᱭᱟ',
     portals: 'ᱯᱚᱨᱴᱟᱞᱠᱚ',

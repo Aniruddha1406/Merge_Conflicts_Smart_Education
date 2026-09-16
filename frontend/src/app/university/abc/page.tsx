@@ -50,7 +50,7 @@ export default function ABCPage() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>NEP 2020 — ABC Compliance Report</h1>
-          <p className={styles.subtitle}>Academic Bank of Credits tracking for all SICP-linked student projects this semester.</p>
+          <p className={styles.subtitle}>Academic Bank of Credits tracking for all SRIJAN-linked student projects this semester.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="btn btn-outline" onClick={() => window.print()}>Print Official Report</button>
