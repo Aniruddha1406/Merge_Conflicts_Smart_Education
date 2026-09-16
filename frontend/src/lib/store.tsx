@@ -5,6 +5,8 @@ import React, {
   useContext,
   useReducer,
   useCallback,
+  useEffect,
+  useState
 } from 'react'
 import {
   SUBMISSIONS,
@@ -59,6 +61,7 @@ export interface AppState {
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 type Action =
+  | { type: 'HYDRATE'; payload: AppState }
   | { type: 'ENDORSE'; submissionId: string }
   | { type: 'SET_STATUS'; submissionId: string; status: SubmissionStatus }
   | { type: 'ASSIGN'; submissionId: string; institution: string; fitScore: number }
@@ -67,6 +70,7 @@ type Action =
   | { type: 'MARK_ALL_READ' }
   | { type: 'COMPLETE_MILESTONE'; projectId: string; milestoneId: string; rubricScore: number }
   | { type: 'ADD_COMMITMENT'; commitment: FundingCommitment }
+  | { type: 'DISBURSE_FUNDS'; commitmentId: string; amountLakhs: number }
   | { type: 'SUBMIT_VERIFICATION'; submissionId: string }
   | { type: 'ADD_MILESTONE'; projectId: string; milestone: any }
 
@@ -153,6 +157,9 @@ const initialState: AppState = {
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'HYDRATE':
+      return action.payload
+
     case 'ENDORSE':
       return {
         ...state,
@@ -291,6 +298,27 @@ function reducer(state: AppState, action: Action): AppState {
         commitments: [action.commitment, ...state.commitments],
       }
 
+    case 'DISBURSE_FUNDS':
+      return {
+        ...state,
+        commitments: state.commitments.map((c) =>
+          c.id === action.commitmentId
+            ? { ...c, disbursedLakhs: c.disbursedLakhs + action.amountLakhs }
+            : c
+        ),
+        notifications: [
+          {
+            id: `N-${Date.now()}`,
+            type: 'resolved', // Generic type for now
+            title: 'Funds Disbursed',
+            body: `₹${action.amountLakhs}L disbursed for commitment ${action.commitmentId}.`,
+            timestamp: new Date().toISOString(),
+            read: false,
+          },
+          ...state.notifications,
+        ],
+      }
+
     case 'SUBMIT_VERIFICATION':
       return {
         ...state,
@@ -328,6 +356,7 @@ interface StoreContextValue {
   markAllRead: () => void
   completeMilestone: (projectId: string, milestoneId: string, score: number) => void
   addCommitment: (c: FundingCommitment) => void
+  disburseFunds: (commitmentId: string, amount: number) => void
   submitVerification: (submissionId: string) => void
   addMilestone: (projectId: string, milestone: any) => void
 }
@@ -336,6 +365,39 @@ const StoreContext = createContext<StoreContextValue | null>(null)
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [isClient, setIsClient] = useState(false)
+
+  // Load state from localStorage on initial client mount
+  useEffect(() => {
+    setIsClient(true)
+    const stored = localStorage.getItem('sicp_app_state')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        // Auto-patch old data mismatch
+        if (parsed.commitments) {
+          parsed.commitments.forEach((c: any) => {
+            if (c.id === 'FC-001') c.type = 'CSR' // Ensure it's CSR now
+          })
+        }
+        if (parsed.projects) {
+          parsed.projects.forEach((p: any) => {
+            if (p.industryPartner === 'Tata Projects CSR') p.industryPartner = 'Tata Projects (CSR Division)'
+          })
+        }
+        dispatch({ type: 'HYDRATE', payload: parsed })
+      } catch (e) {
+        console.error('Failed to parse stored state', e)
+      }
+    }
+  }, [])
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem('sicp_app_state', JSON.stringify(state))
+    }
+  }, [state, isClient])
 
   const endorse = useCallback((id: string) => dispatch({ type: 'ENDORSE', submissionId: id }), [])
   const setStatus = useCallback((id: string, status: SubmissionStatus) => dispatch({ type: 'SET_STATUS', submissionId: id, status }), [])
@@ -345,11 +407,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const markAllRead = useCallback(() => dispatch({ type: 'MARK_ALL_READ' }), [])
   const completeMilestone = useCallback((projectId: string, milestoneId: string, score: number) => dispatch({ type: 'COMPLETE_MILESTONE', projectId, milestoneId, rubricScore: score }), [])
   const addCommitment = useCallback((c: FundingCommitment) => dispatch({ type: 'ADD_COMMITMENT', commitment: c }), [])
+  const disburseFunds = useCallback((commitmentId: string, amount: number) => dispatch({ type: 'DISBURSE_FUNDS', commitmentId, amountLakhs: amount }), [])
   const submitVerification = useCallback((submissionId: string) => dispatch({ type: 'SUBMIT_VERIFICATION', submissionId }), [])
   const addMilestone = useCallback((projectId: string, milestone: any) => dispatch({ type: 'ADD_MILESTONE', projectId, milestone }), [])
 
   return (
-    <StoreContext.Provider value={{ state, endorse, setStatus, assign, mergeCluster, markRead, markAllRead, completeMilestone, addCommitment, submitVerification, addMilestone }}>
+    <StoreContext.Provider value={{ state, endorse, setStatus, assign, mergeCluster, markRead, markAllRead, completeMilestone, addCommitment, disburseFunds, submitVerification, addMilestone }}>
       {children}
     </StoreContext.Provider>
   )

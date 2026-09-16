@@ -1,6 +1,19 @@
-import { DASHBOARD_STATS, SUBMISSIONS } from '@/lib/mockData';
+import { DASHBOARD_STATS, SUBMISSIONS as INITIAL_SUBMISSIONS } from '@/lib/mockData';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
+function getMockSubmissions() {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('mock_submissions');
+    if (stored) return JSON.parse(stored);
+    localStorage.setItem('mock_submissions', JSON.stringify(INITIAL_SUBMISSIONS));
+  }
+  return [...INITIAL_SUBMISSIONS];
+}
+
+function saveMockSubmissions(submissions: any) {
+  if (typeof window !== 'undefined') localStorage.setItem('mock_submissions', JSON.stringify(submissions));
+}
 
 async function safeFetch(url: string, opts?: any) {
   try {
@@ -10,6 +23,8 @@ async function safeFetch(url: string, opts?: any) {
   } catch(e) {
     const mockJson = (data: any) => Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
     if (typeof url === 'string') {
+      const SUBMISSIONS = getMockSubmissions();
+
       if (url.includes('/stats/dashboard')) return mockJson(DASHBOARD_STATS);
       if (url.includes('/user/')) {
         const userId = url.split('/').pop();
@@ -19,11 +34,17 @@ async function safeFetch(url: string, opts?: any) {
       }
       if (url.includes('/institution/')) {
         const instId = url.split('/').pop();
-        // U-UNI-001 has INST-001 which is BIT Mesra in mockData
         if (instId === 'INST-001') return mockJson(SUBMISSIONS.filter((s: any) => s.assignedInstitution === 'BIT Mesra'));
         return mockJson(SUBMISSIONS.filter((s: any) => s.assignedInstitution === instId || s.assignedInstitutionId === instId));
       }
-      if (url.includes('/assignable/')) return mockJson(SUBMISSIONS.filter((s: any) => s.status === 'Under Review'));
+      if (url.includes('/assignable/')) {
+        const assignable = SUBMISSIONS.filter((s: any) => s.status === 'Under Review').map((s: any) => ({
+          ...s,
+          fit_score: s.fitScore || s.fit_score || (0.75 + Math.random() * 0.2),
+          urgency_score: s.urgencyScore || s.urgency_score
+        }));
+        return mockJson(assignable);
+      }
       if (url.includes('/allocation/validated')) return mockJson(SUBMISSIONS.filter((s: any) => s.status === 'Under Review'));
       if (url.includes('/preview')) {
         return mockJson({
@@ -47,7 +68,33 @@ async function safeFetch(url: string, opts?: any) {
         const parts = url.split('/');
         const id = parts[parts.indexOf('challenges') + 1];
         if (url.includes('routing')) return mockJson([]);
-        if (url.includes('endorse') || url.includes('validate') || url.includes('reject') || url.includes('assign') || url.includes('verify')) return mockJson({ success: true });
+        if (url.includes('endorse') || url.includes('validate') || url.includes('reject') || url.includes('assign') || url.includes('verify')) {
+          const sIndex = SUBMISSIONS.findIndex((s: any) => s.id === id);
+          if (sIndex > -1) {
+            if (url.includes('endorse')) {
+              SUBMISSIONS[sIndex].endorsements += 1;
+              SUBMISSIONS[sIndex].urgencyScore = Math.min(100, SUBMISSIONS[sIndex].urgencyScore + 5);
+            }
+            if (url.includes('validate')) {
+              SUBMISSIONS[sIndex].status = 'Under Review';
+            }
+            if (url.includes('reject')) {
+              SUBMISSIONS[sIndex].status = 'Rejected';
+            }
+            if (url.includes('assign')) {
+              SUBMISSIONS[sIndex].status = 'Assigned to Institution';
+              try {
+                if (opts?.body) {
+                  const body = JSON.parse(opts.body);
+                  SUBMISSIONS[sIndex].assignedInstitution = body.institutionName;
+                  if (body.fitScore) SUBMISSIONS[sIndex].fitScore = body.fitScore;
+                }
+              } catch(e) {}
+            }
+            saveMockSubmissions(SUBMISSIONS);
+          }
+          return mockJson({ success: true });
+        }
         if (id && id !== 'undefined' && !id.includes('?')) return mockJson(SUBMISSIONS.find((s: any) => s.id === id) || SUBMISSIONS[0]);
       }
       if (url.endsWith('/api/challenges')) return mockJson(SUBMISSIONS);

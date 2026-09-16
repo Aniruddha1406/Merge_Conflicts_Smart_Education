@@ -33,13 +33,9 @@ export default function IndustryDashboard() {
     myCommitments.map(c => state.submissions.find(s => s.id === c.submissionId)?.district).filter(Boolean)
   ).size || 4
 
-  // Open challenges: fix the broken filter — show ALL non-resolved challenges in partner focus areas
   const openChallenges = SUBMISSIONS
     .filter(s => partner.csrFocusAreas.includes(s.domain) && s.status !== 'Resolved')
     .slice(0, 4)
-
-  // Co-dev projects
-  const codevelopment = state.projects.filter(p => p.industryPartner === partner.name)
 
   return (
     <div className={styles.page}>
@@ -152,28 +148,6 @@ export default function IndustryDashboard() {
                 </div>
               ))
             )}
-
-            {/* Co-development fallback card if no live commitments */}
-            {myCommitments.length === 0 && codevelopment.length > 0 && codevelopment.map(p => (
-              <div className="card" key={p.id} style={{ marginBottom: 'var(--space-4)' }}>
-                <div className="card-body">
-                  <h3 className={styles.commitTitle}>{p.title}</h3>
-                  <p className="text-xs text-secondary" style={{ marginBottom: 'var(--space-3)' }}>Partner: {p.institution}</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1)' }}>
-                    <span className="text-xs text-secondary">Funding Disbursed — ₹12.5L / ₹30L</span>
-                    <span className="text-xs font-semibold">41%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-bar-fill fill-navy" style={{ width: '41%' }} />
-                  </div>
-                </div>
-                <div className="card-footer">
-                  <Link href="/industry/commitments" className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>
-                    Manage Commitment
-                  </Link>
-                </div>
-              </div>
-            ))}
           </div>
 
           {/* CSR Impact Snapshot */}
@@ -186,7 +160,7 @@ export default function IndustryDashboard() {
                 {[
                   { label: 'Challenges Supported', value: myCommitments.length || partner.activeCommitments },
                   { label: 'Districts Impacted', value: impactedDistricts },
-                  { label: 'Student Teams Empowered', value: codevelopment.reduce((s, p) => s + p.team.filter(t => t.role === 'Student').length, 0) || 12 },
+                  { label: 'Student Teams Empowered', value: 12 },
                   { label: 'Community Deployments', value: OUTCOME_METRICS.communityDeployments },
                 ].map(i => (
                   <div key={i.label} style={{ textAlign: 'center', padding: 'var(--space-3)', background: 'var(--warm-50)', borderRadius: 'var(--radius-md)' }}>
@@ -195,9 +169,6 @@ export default function IndustryDashboard() {
                   </div>
                 ))}
               </div>
-              <Link href="/industry/codevelopment" className="btn btn-secondary btn-sm" style={{ marginTop: 'var(--space-5)', width: '100%', justifyContent: 'center' }}>
-                Co-Development Workspace
-              </Link>
             </div>
           </div>
         </div>

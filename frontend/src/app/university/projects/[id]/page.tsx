@@ -1,18 +1,28 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useStore } from '@/lib/store'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Modal from '@/components/Modal'
 import styles from './page.module.css'
+import { getProjectById, completeMilestone as apiCompleteMilestone, addMilestone as apiAddMilestone } from '@/app/actions/projects'
 
 export default function ProjectDetailPage() {
   const params = useParams()
   const id = params?.id as string
-  const { state, completeMilestone, addMilestone } = useStore()
 
-  const project = state.projects.find(p => p.id === id)
+  const [project, setProject] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  const loadProject = useCallback(async () => {
+    setLoading(true)
+    const data = await getProjectById(id)
+    setProject(data)
+    setLoading(false)
+  }, [id])
+
+  useEffect(() => { loadProject() }, [loadProject])
+
   const [rubricInputs, setRubricInputs] = useState<Record<string, number>>({})
   const [confirmMilestone, setConfirmMilestone] = useState<string | null>(null)
   const [verifyOpen, setVerifyOpen] = useState(false)
@@ -22,6 +32,12 @@ export default function ProjectDetailPage() {
   const [addMilestoneOpen, setAddMilestoneOpen] = useState(false)
   const [newM, setNewM] = useState({ title: '', desc: '', due: '', hours: 40, deliverables: '' })
 
+  if (loading) return (
+    <div className="empty-state" style={{ padding: 'var(--space-20)' }}>
+      <h5>Loading project workspace...</h5>
+    </div>
+  )
+
   if (!project) return (
     <div className="empty-state" style={{ padding: 'var(--space-20)' }}>
       <div className="empty-state-mark">?</div>
@@ -30,19 +46,20 @@ export default function ProjectDetailPage() {
     </div>
   )
 
-  const totalHours = project.milestones.reduce((sum, m) => sum + m.studentHours, 0)
-  const completedMilestones = project.milestones.filter(m => m.completed).length
-  const pct = Math.round((completedMilestones / project.milestones.length) * 100)
+  const totalHours = project.milestones?.reduce((sum: number, m: any) => sum + (m.studentHours || m.student_hours || 0), 0) || 0
+  const completedMilestones = project.milestones?.filter((m: any) => m.completed).length || 0
+  const pct = project.milestones?.length ? Math.round((completedMilestones / project.milestones.length) * 100) : 0
   const estimatedCredits = Math.round(totalHours / 30)
 
-  function handleCompleteMilestone() {
+  async function handleCompleteMilestone() {
     if (confirmMilestone) {
-      completeMilestone(project!.id, confirmMilestone, rubricInputs[confirmMilestone] ?? 80)
+      await apiCompleteMilestone(project!.id, confirmMilestone)
       setConfirmMilestone(null)
+      await loadProject()
     }
   }
 
-  function handleAddMilestone() {
+  async function handleAddMilestone() {
     if (!newM.title) return
     const ms = {
       id: `M-${Date.now()}`,
@@ -53,16 +70,36 @@ export default function ProjectDetailPage() {
       deliverables: newM.deliverables.split(',').map(s => s.trim()).filter(Boolean),
       completed: false,
     }
-    addMilestone(project!.id, ms)
+    await apiAddMilestone(project!.id, ms)
     setAddMilestoneOpen(false)
     setNewM({ title: '', desc: '', due: '', hours: 40, deliverables: '' })
+    await loadProject()
+  }
+
+  // Calculate status dynamically based on milestones
+  let dynamicStatus = project.status
+  if (project.status !== 'Stalled') {
+    const ms = project.milestones || []
+    const done = ms.filter((m: any) => m.completed).length
+    const total = ms.length
+    if (total > 0 && done === total) dynamicStatus = 'Completed'
+    else if (total > 0 && done === total - 1) dynamicStatus = 'Testing'
+    else dynamicStatus = 'Active'
+  }
+
+  const STATUS_BADGE: Record<string, string> = {
+    'Planning': 'badge-submitted',
+    'Active': 'badge-inprogress',
+    'Testing': 'badge-assigned',
+    'Completed': 'badge-resolved',
+    'Stalled': 'badge-review',
   }
 
   return (
     <div className={styles.page}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
         <Link href="/university/projects" className="btn btn-ghost btn-sm">← Projects</Link>
-        <span className="badge badge-inprogress">{project.status}</span>
+        <span className={`badge ${STATUS_BADGE[dynamicStatus] || 'badge-neutral'}`}>{dynamicStatus}</span>
       </div>
 
       <div className={styles.titleRow}>

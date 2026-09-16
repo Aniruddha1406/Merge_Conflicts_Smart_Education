@@ -2,8 +2,12 @@
 
 import { useState, useMemo } from 'react'
 import { useStore } from '@/lib/store'
+import dynamic from 'next/dynamic'
 import Modal from '@/components/Modal'
 import styles from './page.module.css'
+
+// Dynamically import the map so it only runs on the client to avoid SSR window errors
+const DynamicMap = dynamic(() => import('@/components/DynamicMap'), { ssr: false })
 
 const DISTRICTS = ['All', 'Latehar', 'Khunti', 'Gumla', 'Simdega', 'Ranchi', 'West Singhbhum', 'Dhanbad', 'Ramgarh']
 
@@ -14,18 +18,6 @@ const STATUS_BADGE: Record<string, string> = {
   'In Progress': 'badge-inprogress',
   'Pending Verification': 'badge-verification',
   'Resolved': 'badge-resolved',
-}
-
-// Simplified district pin positions on the SVG placeholder (rough relative positions)
-const DISTRICT_PINS: Record<string, { x: string; y: string }> = {
-  'Ranchi':          { x: '48%', y: '52%' },
-  'Latehar':         { x: '36%', y: '48%' },
-  'Khunti':          { x: '43%', y: '58%' },
-  'Gumla':           { x: '34%', y: '58%' },
-  'Simdega':         { x: '28%', y: '65%' },
-  'West Singhbhum':  { x: '22%', y: '72%' },
-  'Dhanbad':         { x: '72%', y: '32%' },
-  'Ramgarh':         { x: '58%', y: '40%' },
 }
 
 export default function CommunityMapPage() {
@@ -117,51 +109,25 @@ export default function CommunityMapPage() {
           </div>
         </div>
 
-        {/* SVG Map placeholder */}
-        <div className={styles.mapArea}>
-          <div className={styles.mapLabel}>Jharkhand — Challenge Distribution</div>
-          <div className={styles.mapSvgWrap}>
-            {/* Simple outlined placeholder of Jharkhand */}
-            <svg viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.mapSvg} aria-label="Jharkhand district map">
-              {/* Rough Jharkhand outline approximation */}
-              <path
-                d="M80 40 L180 20 L280 30 L340 80 L360 150 L320 230 L260 280 L200 300 L140 280 L80 240 L40 180 L30 120 Z"
-                fill="var(--warm-100)"
-                stroke="var(--cf-300)"
-                strokeWidth="2"
-              />
-              {/* District grid lines (decorative) */}
-              <line x1="80" y1="160" x2="360" y2="160" stroke="var(--warm-200)" strokeWidth="1" strokeDasharray="4,4"/>
-              <line x1="200" y1="20" x2="200" y2="300" stroke="var(--warm-200)" strokeWidth="1" strokeDasharray="4,4"/>
-              <line x1="130" y1="20" x2="130" y2="300" stroke="var(--warm-200)" strokeWidth="1" strokeDasharray="4,4"/>
-              <line x1="270" y1="20" x2="270" y2="300" stroke="var(--warm-200)" strokeWidth="1" strokeDasharray="4,4"/>
-            </svg>
-
-            {/* District pins — positioned absolutely */}
-            {state.submissions
-              .filter(s => district === 'All' || s.district === district)
-              .map(s => {
-                const pin = DISTRICT_PINS[s.district]
-                if (!pin) return null
-                const isHigh = s.urgencyScore >= 85
-                return (
-                  <div
-                    key={s.id}
-                    className={styles.pin}
-                    style={{ left: pin.x, top: pin.y, '--pin-color': isHigh ? 'var(--cf-800)' : 'var(--ai-500)' } as React.CSSProperties}
-                    title={s.title}
-                  >
-                    <div className={styles.pinDot} style={{ background: isHigh ? 'var(--cf-800)' : 'var(--ai-500)' }} />
-                    <div className={styles.pinLabel}>{s.district}</div>
-                  </div>
-                )
-              })
-            }
+        {/* Dynamic Leaflet Map Area */}
+        <div className={styles.mapArea} style={{ position: 'relative' }}>
+          <div className={styles.mapLabel} style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 1000, background: 'white', padding: '8px 12px', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            Jharkhand — Challenge Distribution
+          </div>
+          
+          <div style={{ flex: 1, width: '100%', minHeight: '360px', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+            <DynamicMap submissions={filtered} />
           </div>
 
-          <div className={styles.mapLegend}>
-            <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: 'var(--cf-800)' }} /> High Urgency (&gt;85)</div>
-            <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: 'var(--ai-500)' }} /> Normal</div>
+          <div className={styles.mapLegend} style={{ position: 'absolute', bottom: '24px', left: '16px', zIndex: 1000, background: 'white', padding: '8px 12px', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'flex', gap: '16px' }}>
+            <div className={styles.legendItem} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className={styles.legendDot} style={{ background: '#ef4444', width: '12px', height: '12px', borderRadius: '50%' }} /> 
+              <span className="text-xs">High Urgency (&gt;85)</span>
+            </div>
+            <div className={styles.legendItem} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className={styles.legendDot} style={{ background: '#3b82f6', width: '12px', height: '12px', borderRadius: '50%' }} /> 
+              <span className="text-xs">Normal</span>
+            </div>
           </div>
         </div>
       </div>

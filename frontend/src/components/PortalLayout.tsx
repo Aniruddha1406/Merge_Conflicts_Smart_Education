@@ -123,17 +123,6 @@ export default function PortalLayout({ children, navSections, portalLabel }: Por
             </button>
           </div>
           <div className={styles.topbarRight}>
-            {unreadCount > 0 && (
-              <Link href={notifHref} className={styles.notifBell} aria-label={`${unreadCount} unread notifications`}>
-                <span className={styles.notifIcon}>
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M10 2a6 6 0 0 0-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 0 0-6-6z"/>
-                    <path d="M8.5 17a1.5 1.5 0 0 0 3 0"/>
-                  </svg>
-                </span>
-                <span className={styles.notifBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-              </Link>
-            )}
             {user && (
               <span className={styles.topbarUser}>
                 Signed in as <strong>{user.name}</strong>

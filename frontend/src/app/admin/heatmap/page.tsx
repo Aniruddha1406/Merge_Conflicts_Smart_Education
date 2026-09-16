@@ -1,23 +1,10 @@
 'use client'
 
-import { DASHBOARD_STATS } from '@/lib/mockData'
+import { useMemo, useEffect, useState } from 'react'
+import { SUBMISSIONS as INITIAL_SUBMISSIONS } from '@/lib/mockData'
 import styles from './page.module.css'
 
-// Submission counts by district, sorted by count desc
-const DISTRICTS = [...DASHBOARD_STATS.submissionsByDistrict].sort((a, b) => b.count - a.count)
-const MAX_COUNT = DISTRICTS[0].count
-
-// Colour intensity: more submissions = darker shade of Chocolate Fondant
-function getShade(count: number): string {
-  const pct = count / MAX_COUNT
-  if (pct >= 0.9) return 'var(--cf-800)'
-  if (pct >= 0.7) return 'var(--cf-600)'
-  if (pct >= 0.5) return 'var(--cf-400)'
-  if (pct >= 0.3) return 'var(--cf-200)'
-  return 'var(--cf-100)'
-}
-
-// Approximate SVG positions for each district (x%, y% within the map viewBox)
+// Approximate SVG positions for each district
 const DISTRICT_SVG: Record<string, { x: number; y: number; w: number; h: number }> = {
   'Ranchi':          { x: 42, y: 45, w: 12, h: 10 },
   'Dhanbad':         { x: 68, y: 24, w: 10, h: 9 },
@@ -31,13 +18,64 @@ const DISTRICT_SVG: Record<string, { x: number; y: number; w: number; h: number 
   'Hazaribagh':      { x: 50, y: 28, w: 10, h: 9 },
 }
 
+// Vibrant heatmap gradient: green → yellow → orange → red
+function getShade(count: number, max: number): string {
+  if (max === 0) return '#e8f5e9'
+  const pct = count / max
+  if (pct >= 0.9) return '#d32f2f'   // Deep Red
+  if (pct >= 0.7) return '#f57c00'   // Orange
+  if (pct >= 0.5) return '#fbc02d'   // Yellow
+  if (pct >= 0.3) return '#66bb6a'   // Medium Green
+  return '#a5d6a7'                    // Light Green
+}
+
+function getTextColor(count: number, max: number): string {
+  if (max === 0) return '#333'
+  const pct = count / max
+  if (pct >= 0.5) return 'white'
+  return '#1b5e20'
+}
+
 export default function HeatmapPage() {
+  const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS)
+
+  // Load live submissions from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('mock_submissions')
+    if (stored) {
+      try { setSubmissions(JSON.parse(stored)) } catch {}
+    }
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'mock_submissions' && e.newValue) {
+        try { setSubmissions(JSON.parse(e.newValue)) } catch {}
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
+  // Dynamically compute district counts from live submissions
+  const DISTRICTS = useMemo(() => {
+    const counts: Record<string, number> = {}
+    submissions.forEach((s: any) => {
+      const d = s.district
+      if (d) counts[d] = (counts[d] || 0) + 1
+    })
+    return Object.entries(counts)
+      .map(([district, count]) => ({ district, count }))
+      .sort((a, b) => b.count - a.count)
+  }, [submissions])
+
+  const MAX_COUNT = DISTRICTS.length > 0 ? DISTRICTS[0].count : 1
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>District Challenge Heatmap</h1>
-          <p className={styles.subtitle}>Submission density across Jharkhand's districts. Darker shading indicates higher submission volume.</p>
+          <p className={styles.subtitle}>
+            Live submission density across Jharkhand's districts ({submissions.length} total submissions). Darker shading indicates higher volume.
+          </p>
         </div>
       </div>
 
@@ -55,10 +93,10 @@ export default function HeatmapPage() {
                 strokeWidth="2"
               />
               {/* District cells — drawn as rounded rects, shaded by count */}
-              {DISTRICT_SVG && Object.entries(DISTRICT_SVG).map(([dist, pos]) => {
+              {Object.entries(DISTRICT_SVG).map(([dist, pos]) => {
                 const data = DISTRICTS.find(d => d.district === dist)
-                if (!data) return null
-                const shade = getShade(data.count)
+                const count = data?.count || 0
+                const shade = getShade(count, MAX_COUNT)
                 const svgX = (pos.x / 100) * 400
                 const svgY = (pos.y / 100) * 340
                 const svgW = (pos.w / 100) * 400
@@ -66,21 +104,22 @@ export default function HeatmapPage() {
                 return (
                   <g key={dist}>
                     <rect x={svgX} y={svgY} width={svgW} height={svgH} rx="4" fill={shade} opacity={0.85} />
-                    <text x={svgX + svgW / 2} y={svgY + svgH / 2 + 4} textAnchor="middle" fontSize="8" fill="white" fontWeight="600">{dist.split(' ')[0]}</text>
+                    <text x={svgX + svgW / 2} y={svgY + svgH / 2 - 2} textAnchor="middle" fontSize="8" fill={getTextColor(count, MAX_COUNT)} fontWeight="600">{dist.split(' ')[0]}</text>
+                    <text x={svgX + svgW / 2} y={svgY + svgH / 2 + 10} textAnchor="middle" fontSize="7" fill={getTextColor(count, MAX_COUNT)} fontWeight="500">{count}</text>
                   </g>
                 )
               })}
             </svg>
           </div>
 
-          {/* Legend */}
+          {/* Dynamic Legend */}
           <div className={styles.legend}>
             {[
-              { shade: 'var(--cf-800)', label: '170+' },
-              { shade: 'var(--cf-600)', label: '120–169' },
-              { shade: 'var(--cf-400)', label: '80–119' },
-              { shade: 'var(--cf-200)', label: '40–79' },
-              { shade: 'var(--cf-100)', label: '<40' },
+              { shade: '#d32f2f', label: `${Math.ceil(MAX_COUNT * 0.9)}+ (Critical)` },
+              { shade: '#f57c00', label: `${Math.ceil(MAX_COUNT * 0.7)}–${Math.ceil(MAX_COUNT * 0.9) - 1} (High)` },
+              { shade: '#fbc02d', label: `${Math.ceil(MAX_COUNT * 0.5)}–${Math.ceil(MAX_COUNT * 0.7) - 1} (Medium)` },
+              { shade: '#66bb6a', label: `${Math.ceil(MAX_COUNT * 0.3)}–${Math.ceil(MAX_COUNT * 0.5) - 1} (Low)` },
+              { shade: '#a5d6a7', label: `<${Math.ceil(MAX_COUNT * 0.3)} (Minimal)` },
             ].map(l => (
               <div key={l.label} className={styles.legendItem}>
                 <span className={styles.legendSwatch} style={{ background: l.shade }} />

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Modal from '@/components/Modal'
 import { acceptChallenge, declineChallenge, createProject } from '@/app/actions/projects'
 import { getAssignableChallenges } from '@/app/actions/challenges'
+import { getPersonnel } from '@/app/actions/personnel'
 import styles from './page.module.css'
 
 type SortKey = 'fitScore' | 'urgency'
@@ -28,6 +29,8 @@ interface QueueItem {
 
 export default function UniversityQueuePage() {
   const [challenges, setChallenges] = useState<QueueItem[]>([])
+  const [facultyList, setFacultyList] = useState<string[]>([])
+  const [studentList, setStudentList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState<SortKey>('fitScore')
   const [assignModal, setAssignModal] = useState<{ subId: string; subTitle: string; fitScore: number } | null>(null)
@@ -42,9 +45,13 @@ export default function UniversityQueuePage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      // Fetch challenges assigned to BIT Mesra (INST-001) or validated & unassigned
-      const rows = await getAssignableChallenges('INST-001')
+      const [rows, personnel] = await Promise.all([
+        getAssignableChallenges('INST-001'),
+        getPersonnel()
+      ])
       setChallenges(rows as QueueItem[])
+      setFacultyList(personnel.faculty || [])
+      setStudentList(personnel.students || [])
     } catch (e) {
       console.error('Failed to load queue from DB', e)
     }
@@ -94,11 +101,11 @@ export default function UniversityQueuePage() {
           ...validTeam,
         ],
         milestones: [
-          { title: 'Phase 1: Ground Survey & Need Assessment', description: 'Conduct field survey, baseline sample collection, and stakeholder interviews', dueDate: getDateOffset(30), studentHours: 40, deliverables: ['Baseline Survey Report', 'GIS Site Map'] },
-          { title: 'Phase 2: Prototyping & Lab Simulation', description: 'Fabricate initial prototype, perform lab validation tests', dueDate: getDateOffset(75), studentHours: 65, deliverables: ['Functional Prototype', 'Lab Performance Data'] },
-          { title: 'Phase 3: Field Testing & Community Pilot', description: 'Deploy prototype on-site, measure efficacy, gather citizen feedback', dueDate: getDateOffset(120), studentHours: 50, deliverables: ['Field Trial Log', 'Citizen Feedback Sign-off'] },
-          { title: 'Phase 4: Handover & Pilot Sign-off', description: 'Hand over solution to local authorities, publish technical report', dueDate: getDateOffset(150), studentHours: 30, deliverables: ['Official Handover Deed', 'NEP 2020 Credit Report'] },
-        ]
+          { id: `M-1-${Date.now()}`, title: 'Phase 1: Ground Survey & Need Assessment', description: 'Conduct field survey, baseline sample collection, and stakeholder interviews', dueDate: getDateOffset(30), studentHours: 40, deliverables: ['Baseline Survey Report', 'GIS Site Map'] },
+          { id: `M-2-${Date.now()}`, title: 'Phase 2: Tech Design & Architecture', description: 'Develop initial blueprints, software architecture, and system models', dueDate: getDateOffset(60), studentHours: 60, deliverables: ['Design Document', 'Mockups'] },
+          { id: `M-3-${Date.now()}`, title: 'Phase 3: Prototype Development', description: 'Build minimum viable product (MVP) or physical prototype for testing', dueDate: getDateOffset(120), studentHours: 120, deliverables: ['Working Prototype', 'Source Code/Schematics'] },
+          { id: `M-4-${Date.now()}`, title: 'Phase 4: Field Testing & Verification', description: 'Deploy prototype on-site, gather feedback, and verify resolution', dueDate: getDateOffset(150), studentHours: 80, deliverables: ['Test Results', 'Final Report'] },
+        ],
       })
 
       setDeclined(prev => new Set(prev).add(assignModal.subId))
@@ -222,14 +229,15 @@ export default function UniversityQueuePage() {
         </p>
         <div className="form-group">
           <label className="form-label">Faculty Principal Investigator *</label>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="e.g. Prof. Anita Sharma (Dept. of Civil Engineering)"
+          <select
+            className="form-select"
             value={mentor}
             onChange={e => setMentor(e.target.value)}
-          />
-          <span className="form-hint">Type the faculty name and department</span>
+          >
+            <option value="">Select Faculty...</option>
+            {facultyList.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
+          <span className="form-hint">Select the registered faculty PI</span>
         </div>
         <div className="form-group">
           <label className="form-label">Target Completion Date</label>
@@ -239,13 +247,21 @@ export default function UniversityQueuePage() {
           <label className="form-label">Student R&D Team</label>
           {teamMembers.map((m, i) => (
             <div key={i} style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-2)', alignItems: 'center' }}>
-              <input
-                className="form-input"
-                placeholder="Student name"
+              <select
+                className="form-select"
                 value={m.name}
-                onChange={e => updateTeamMember(i, 'name', e.target.value)}
+                onChange={e => {
+                  const studentName = e.target.value;
+                  const student = studentList.find(s => s.name === studentName);
+                  setTeamMembers(prev => prev.map((member, idx) => 
+                    idx === i ? { ...member, name: studentName, department: student?.dept || member.department } : member
+                  ));
+                }}
                 style={{ flex: 2 }}
-              />
+              >
+                <option value="">Select Student...</option>
+                {studentList.map(s => <option key={s.name} value={s.name}>{s.name} ({s.degree})</option>)}
+              </select>
               <select
                 className="form-select"
                 value={m.role}
@@ -262,6 +278,7 @@ export default function UniversityQueuePage() {
                 value={m.department}
                 onChange={e => updateTeamMember(i, 'department', e.target.value)}
                 style={{ flex: 1 }}
+                readOnly
               />
               <input
                 className="form-input"
