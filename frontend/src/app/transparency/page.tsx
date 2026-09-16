@@ -29,34 +29,35 @@ export default async function PublicTransparencyPage() {
 
       {/* Primary KPI Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
-        <div className="card p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-secondary block mb-1">Total Crowdsourced Issues</span>
-          <p style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--cf-800)' }}>{stats.totalSubmissions}</p>
-          <span className="text-xs" style={{ color: '#10B981' }}>{stats.districtsCovered} districts reporting</span>
+        
+        <div style={{ background: 'linear-gradient(135deg, #1C2B45, #2A3B5A)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(28, 43, 69, 0.3)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#94A3B8', display: 'block', marginBottom: '0.5rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Crowdsourced Issues</span>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, margin: '0.5rem 0' }}>{stats.totalSubmissions}</p>
+          <span style={{ fontSize: '0.8rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>{stats.districtsCovered} districts reporting</span>
         </div>
 
-        <div className="card p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-secondary block mb-1">Active R&D Projects</span>
-          <p style={{ fontSize: '2rem', fontWeight: 700, color: '#3B82F6' }}>{stats.projectsActive + stats.inProgress}</p>
-          <span className="text-xs text-secondary">{stats.institutionsEngaged} HEIs assigned</span>
+        <div style={{ background: 'linear-gradient(135deg, #3B2A22, #4D392F)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(59, 42, 34, 0.3)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#E3A879', opacity: 0.8, display: 'block', marginBottom: '0.5rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active R&D Projects</span>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#E3A879', lineHeight: 1.2, margin: '0.5rem 0' }}>{stats.projectsActive}</p>
+          <span style={{ fontSize: '0.8rem', color: '#E3A879', background: 'rgba(227, 168, 121, 0.15)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>{stats.institutionsEngaged} HEIs assigned</span>
         </div>
 
-        <div className="card p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-secondary block mb-1">Resolved & Verified</span>
-          <p style={{ fontSize: '2rem', fontWeight: 700, color: '#10B981' }}>{stats.resolvedSubmissions}</p>
-          <span className="text-xs text-secondary">{stats.resolutionRate}% resolution rate</span>
+        <div style={{ background: 'linear-gradient(135deg, #1C2B45, #2A3B5A)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(28, 43, 69, 0.3)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#94A3B8', display: 'block', marginBottom: '0.5rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Resolved & Verified</span>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#10B981', lineHeight: 1.2, margin: '0.5rem 0' }}>{stats.resolvedSubmissions}</p>
+          <span style={{ fontSize: '0.8rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>{stats.resolutionRate}% resolution rate</span>
         </div>
 
-        <div className="card p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-secondary block mb-1">ABC Academic Credits</span>
-          <p style={{ fontSize: '2rem', fontWeight: 700, color: '#8B5CF6' }}>{stats.creditsAwarded}</p>
-          <span className="text-xs text-secondary">NEP 2020 aligned</span>
+        <div style={{ background: 'linear-gradient(135deg, #3B2A22, #4D392F)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(59, 42, 34, 0.3)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#E3A879', opacity: 0.8, display: 'block', marginBottom: '0.5rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ABC Academic Credits</span>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#E3A879', lineHeight: 1.2, margin: '0.5rem 0' }}>{stats.creditsAwarded}</p>
+          <span style={{ fontSize: '0.8rem', color: '#E3A879', background: 'rgba(227, 168, 121, 0.15)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>NEP 2020 aligned</span>
         </div>
 
-        <div className="card p-4" style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-          <span className="text-xs text-secondary block mb-1">CSR & Seed Funding</span>
-          <p style={{ fontSize: '2rem', fontWeight: 700, color: '#D97706' }}>₹{stats.fundingCommittedCrore} Cr</p>
-          <span className="text-xs text-secondary">{stats.industryPartners} industry partners</span>
+        <div style={{ background: 'linear-gradient(135deg, #1C2B45, #2A3B5A)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(28, 43, 69, 0.3)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#94A3B8', display: 'block', marginBottom: '0.5rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CSR & Seed Funding</span>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, margin: '0.5rem 0' }}>₹{stats.fundingCommittedCrore} Cr</p>
+          <span style={{ fontSize: '0.8rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>{stats.industryPartners} partners</span>
         </div>
       </div>
 
@@ -137,12 +138,12 @@ export default async function PublicTransparencyPage() {
                   <td style={{ padding: '0.75rem 0.5rem', fontWeight: 500, color: 'var(--cf-800)' }}>{c.title}</td>
                   <td style={{ padding: '0.75rem 0.5rem' }}><span className="tag tag-accent text-xs">{c.domain}</span></td>
                   <td style={{ padding: '0.75rem 0.5rem' }}>{c.district}</td>
-                  <td style={{ padding: '0.75rem 0.5rem', fontWeight: 600, color: c.urgency_score >= 80 ? '#DC2626' : '#2563EB' }}>
-                    {c.urgency_score}/100
+                  <td style={{ padding: '0.75rem 0.5rem', fontWeight: 600, color: (c.urgencyScore || c.urgency_score || 0) >= 80 ? '#DC2626' : '#2563EB' }}>
+                    {c.urgencyScore || c.urgency_score || 0}/100
                   </td>
                   <td style={{ padding: '0.75rem 0.5rem' }}>
-                    {c.assigned_institution_name ? (
-                      <span className="text-xs font-medium text-cf-800">{c.assigned_institution_name}</span>
+                    {(c.assignedInstitution || c.assigned_institution_name) ? (
+                      <span className="text-xs font-medium text-cf-800">{c.assignedInstitution || c.assigned_institution_name}</span>
                     ) : (
                       <span className="text-xs text-secondary">In Routing Queue</span>
                     )}

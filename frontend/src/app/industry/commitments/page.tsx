@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { useStore } from '@/lib/store'
 import { INDUSTRY_PARTNERS } from '@/lib/mockData'
 import styles from './page.module.css'
@@ -54,8 +54,8 @@ export default function CommitmentsPage() {
             </thead>
             <tbody>
               {myCommitments.map(c => (
-                <>
-                  <tr key={c.id} style={{ cursor: 'pointer' }} onClick={() => setExpanded(expanded === c.id ? null : c.id)}>
+                <Fragment key={c.id}>
+                  <tr style={{ cursor: 'pointer' }} onClick={() => setExpanded(expanded === c.id ? null : c.id)}>
                     <td style={{ fontWeight: 500, color: 'var(--cf-800)', maxWidth: '280px' }} className="text-sm">{c.submissionTitle}</td>
                     <td>{c.institution}</td>
                     <td><span className="tag">{c.type}</span></td>
@@ -85,7 +85,7 @@ export default function CommitmentsPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
               {myCommitments.length === 0 && (
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: 'var(--space-10)', color: 'var(--text-tertiary)' }}>No commitments yet</td></tr>

@@ -36,7 +36,7 @@ export default function UniversityDashboard() {
       ])
       
       setQueue(q.slice(0, 3)) // Top 3 queue
-      setProjects(p.filter((x: any) => x.institution_id === instId))
+      setProjects(p.filter((x: any) => x.institution_id === instId || x.institution === instShortName))
     } catch (e) {
       console.error('Failed to load university data', e)
     }

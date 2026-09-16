@@ -63,6 +63,8 @@ export default function SubmitChallenge() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [transcriptLive, setTranscriptLive] = useState('')
+  const rawTextRef = useRef('')
+  const [micAvailable, setMicAvailable] = useState(true)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -80,13 +82,20 @@ export default function SubmitChallenge() {
         recognition.interimResults = true
         recognition.lang = language === 'hi' ? 'hi-IN' : 'en-IN'
 
+        let finalTranscript = ''
         recognition.onresult = (event: any) => {
-          let currentTranscript = ''
-          for (let i = 0; i < event.results.length; i++) {
-            currentTranscript += event.results[i][0].transcript
+          let interimTranscript = ''
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript + ' '
+            } else {
+              interimTranscript += event.results[i][0].transcript
+            }
           }
+          const currentTranscript = finalTranscript + interimTranscript
           setTranscriptLive(currentTranscript)
           setRawText(currentTranscript)
+          rawTextRef.current = currentTranscript
         }
 
         recognition.onend = () => {
@@ -104,6 +113,8 @@ export default function SubmitChallenge() {
         }
 
         recognitionRef.current = recognition
+      } else {
+        setMicAvailable(false)
       }
     }
   }, [language])
@@ -115,8 +126,11 @@ export default function SubmitChallenge() {
       if (recognitionRef.current) {
         try { recognitionRef.current.stop() } catch {}
       }
-
-      const textToUse = rawText.trim() || VOICE_PRESETS.water.text
+      const textToUse = rawTextRef.current.trim() || rawText.trim()
+      if (!textToUse) {
+        return // Do not process if no speech was detected
+      }
+      
       setRawText(textToUse)
       setStep('processing')
 
@@ -126,6 +140,7 @@ export default function SubmitChallenge() {
     } else {
       setTranscriptLive('')
       setRawText('')
+      rawTextRef.current = ''
       setIsRecording(true)
       isRecordingRef.current = true
       if (recognitionRef.current) {
@@ -372,6 +387,11 @@ export default function SubmitChallenge() {
                     <p className={styles.recordStatus}>
                       {isRecording ? 'Listening... Speak into your microphone and tap to stop' : 'Tap to start voice recording'}
                     </p>
+                    {!micAvailable && (
+                      <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', background: '#FFF3CD', border: '1px solid #FFCB47', borderRadius: '8px', fontSize: '0.78rem', color: '#7A5500', maxWidth: '420px', textAlign: 'center' }}>
+                        ⚠️ Microphone not available on this browser/HTTP connection. Please type your challenge in the text box below and click <strong>Process My Input</strong>.
+                      </div>
+                    )}
                   </div>
 
                   {/* Live Transcription or Voice Presets */}
@@ -401,6 +421,21 @@ export default function SubmitChallenge() {
                         ))}
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{ marginTop: '1rem', width: '100%' }}
+                      disabled={!rawText.trim()}
+                      onClick={async () => {
+                        if (!rawText.trim()) return
+                        setStep('processing')
+                        const res = await previewSubmission(rawText.trim(), language)
+                        setPreviewData(res)
+                        setStep('review')
+                      }}
+                    >
+                      Process My Input →
+                    </button>
                   </div>
                 </div>
               ) : (
