@@ -434,7 +434,7 @@ export const PROJECTS: Project[] = [
     submissionId: 'SUB-001',
     title: 'Graphene-Oxide Nanomembrane Prototype for Heavy Metal Filtration',
     institution: 'BIT Mesra',
-    industryPartner: 'Tata Projects CSR',
+    industryPartner: 'Tata Projects (CSR Division)',
     status: 'Active',
     startDate: '2026-08-01',
     targetDate: '2026-12-31',
@@ -943,3 +943,19 @@ export const VOICE_SUBMISSION_DEMO = {
     },
   },
 }
+
+export const INITIAL_FACULTY = [
+  'Prof. Anita Sharma',
+  'Dr. Meena Toppo',
+  'Prof. R.K. Singh',
+  'Dr. S.K. Verma'
+];
+
+export const INITIAL_STUDENTS = [
+  { name: 'Ravi Kumar', degree: 'M.Tech III', dept: 'Civil Engineering' },
+  { name: 'Priya Ekka', degree: 'M.Tech II', dept: 'Environmental Engineering' },
+  { name: 'Deepak Nath', degree: 'B.Tech IV', dept: 'Civil Engineering' },
+  { name: 'Sita Minj', degree: 'MBBS Intern', dept: 'Gynaecology' },
+  { name: 'Arjun Munda', degree: 'B.Tech III', dept: 'Information Technology' },
+  { name: 'Kavita Singh', degree: 'M.Tech I', dept: 'Agriculture Engineering' },
+];

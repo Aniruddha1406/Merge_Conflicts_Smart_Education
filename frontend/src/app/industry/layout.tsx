@@ -8,7 +8,6 @@ const NAV = [
       { label: 'Dashboard', href: '/industry' },
       { label: 'Browse Challenges', href: '/industry/challenges' },
       { label: 'My Commitments', href: '/industry/commitments' },
-      { label: 'Co-Development', href: '/industry/codevelopment' },
     ],
   },
   {

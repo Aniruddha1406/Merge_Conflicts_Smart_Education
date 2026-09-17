@@ -35,7 +35,7 @@ export default function UniversityDashboard() {
         getAllProjects() // ideally getProjectsByInstitution(instId) but we'll filter client-side for now
       ])
       
-      setQueue(q.slice(0, 3)) // Top 3 queue
+      setQueue(q) // Store the full queue
       setProjects(p.filter((x: any) => x.institution_id === instId || x.institution === instShortName))
     } catch (e) {
       console.error('Failed to load university data', e)
@@ -45,7 +45,31 @@ export default function UniversityDashboard() {
 
   useEffect(() => { loadData() }, [loadData])
 
-  const activeProjects = projects.filter(p => p.status === 'Active')
+  const activeProjects = projects.filter(p => {
+    let dynamicStatus = p.status
+    if (p.status !== 'Stalled') {
+      const ms = p.milestones || []
+      const done = ms.filter((m: any) => m.completed).length
+      const total = ms.length
+      if (total > 0 && done === total) dynamicStatus = 'Completed'
+      else if (total > 0 && done === total - 1) dynamicStatus = 'Testing'
+      else dynamicStatus = 'Active'
+    }
+    return ['Planning', 'Active', 'Testing'].includes(dynamicStatus)
+  })
+  
+  const completedProjectsCount = projects.filter(p => {
+    let dynamicStatus = p.status
+    if (p.status !== 'Stalled') {
+      const ms = p.milestones || []
+      const done = ms.filter((m: any) => m.completed).length
+      const total = ms.length
+      if (total > 0 && done === total) dynamicStatus = 'Completed'
+      else if (total > 0 && done === total - 1) dynamicStatus = 'Testing'
+      else dynamicStatus = 'Active'
+    }
+    return dynamicStatus === 'Completed'
+  }).length
   
   const totalHours = useMemo(() =>
     projects.flatMap(p => p.milestones?.filter((m: any) => m.completed) || []).reduce((s, m) => s + (m.student_hours || m.studentHours || 0), 0),
@@ -87,7 +111,7 @@ export default function UniversityDashboard() {
       <div className={styles.kpiGrid}>
         {[
           { label: 'Challenges in Queue', value: queue.length, sub: 'AI-routed to you (Live)' },
-          { label: 'Active Projects', value: activeProjects.length, sub: `${projects.filter(p => p.status === 'Completed').length} completed (Live)` },
+          { label: 'Active Projects', value: activeProjects.length, sub: `${completedProjectsCount} completed (Live)` },
           { label: 'Student Hours Logged', value: totalHours, sub: 'across all projects' },
           { label: 'ABC Credits Generated', value: abcCredits, sub: `NEP 2020 compliant` },
         ].map(k => (
@@ -108,7 +132,7 @@ export default function UniversityDashboard() {
           </div>
           <p className={styles.sectionHint}>Challenges matched to your institution via semantic expertise fit score.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            {queue.map(sub => (
+            {queue.slice(0, 3).map(sub => (
               <div className="card" key={sub.id}>
                 <div className="card-header">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
@@ -165,12 +189,21 @@ export default function UniversityDashboard() {
             <h2 className={styles.sectionTitle}>Active Projects</h2>
             <Link href="/university/projects" className="btn btn-ghost btn-sm">All</Link>
           </div>
-          {projects.map(p => {
+          {activeProjects.map(p => {
             const ms = p.milestones || []
             const done = ms.filter((m: any) => m.completed).length
             const total = ms.length
             const pct = total > 0 ? Math.round((done / total) * 100) : 0
             const next = ms.find((m: any) => !m.completed)
+            
+            // Calculate status dynamically based on milestones
+            let dynamicStatus = p.status
+            if (p.status !== 'Stalled') {
+              if (total > 0 && done === total) dynamicStatus = 'Completed'
+              else if (total > 0 && done === total - 1) dynamicStatus = 'Testing'
+              else dynamicStatus = 'Active'
+            }
+
             return (
               <div className="card" key={p.id}>
                 <div className="card-header" style={{ paddingBottom: 'var(--space-3)' }}>
@@ -182,7 +215,7 @@ export default function UniversityDashboard() {
                         <p className="text-xs text-secondary" style={{ marginTop: 'var(--space-1)' }}>Industry: {p.industry_partner_name}</p>
                       )}
                     </div>
-                    <span className={`badge ${STATUS_BADGE[p.status]}`}>{p.status}</span>
+                    <span className={`badge ${STATUS_BADGE[dynamicStatus] || 'badge-neutral'}`}>{dynamicStatus}</span>
                   </div>
                 </div>
                 <div className="card-body" style={{ paddingTop: 0 }}>
@@ -195,7 +228,7 @@ export default function UniversityDashboard() {
                   </div>
                   {next && (
                     <p className="text-xs text-secondary">
-                      Next: <strong>{next.title}</strong> — Due {new Date(next.due_date).toLocaleDateString('en-IN')}
+                      Next: <strong>{next.title}</strong> — Due {new Date(next.due_date || next.dueDate).toLocaleDateString('en-IN')}
                     </p>
                   )}
                 </div>
@@ -207,7 +240,7 @@ export default function UniversityDashboard() {
               </div>
             )
           })}
-          {projects.length === 0 && (
+          {activeProjects.length === 0 && (
              <p className="text-sm text-secondary p-4 bg-white rounded-md border border-gray-200">No active projects yet.</p>
           )}
         </div>

@@ -60,6 +60,13 @@ export default function ProjectsPage() {
           const pct = totalMilestones > 0 ? Math.round((completed / totalMilestones) * 100) : 0
           const next = p.milestones.find(m => !m.completed)
 
+          let dynamicStatus = p.status
+          if (p.status !== 'Stalled') {
+            if (totalMilestones > 0 && completed === totalMilestones) dynamicStatus = 'Completed'
+            else if (totalMilestones > 0 && completed === totalMilestones - 1) dynamicStatus = 'Testing'
+            else dynamicStatus = 'Active'
+          }
+
           return (
             <div className="card" key={p.id}>
               <div className="card-header">
@@ -68,7 +75,7 @@ export default function ProjectsPage() {
                     <span className="text-xs text-tertiary font-medium" style={{ letterSpacing: 'var(--tracking-wider)' }}>{p.id}</span>
                     <h3 className={styles.projectTitle}>{p.title}</h3>
                   </div>
-                  <span className={`badge ${STATUS_BADGE[p.status]}`}>{p.status}</span>
+                  <span className={`badge ${STATUS_BADGE[dynamicStatus] || 'badge-neutral'}`}>{dynamicStatus}</span>
                 </div>
               </div>
               <div className="card-body">
