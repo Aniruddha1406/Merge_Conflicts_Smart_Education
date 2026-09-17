@@ -68,12 +68,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <div className={styles.navBrand}>
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="1" y="1" width="30" height="30" rx="7" stroke="currentColor" strokeWidth="2" />
-              <path d="M9 21 C9 14 15 11 16 16 C17 21 23 18 23 11" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="9" cy="22" r="2.5" fill="currentColor" />
-              <circle cx="23" cy="10" r="2.5" fill="currentColor" />
-            </svg>
+            <img src="/srijan-logo.jpg" alt="SRIJAN Logo" width="40" height="40" style={{ borderRadius: '50%', objectFit: 'cover' }} />
             <div>
               <span className={styles.navTitle}>{t('nav.title')}</span>
               <span className={styles.navSub}>{t('nav.subtitle')}</span>
@@ -317,12 +312,7 @@ export default function LandingPage() {
           <div className={styles.footerGrid}>
             <div className={styles.footerBrand}>
               <div className={styles.footerLogo}>
-                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <rect x="1" y="1" width="30" height="30" rx="6" stroke="currentColor" strokeWidth="2" />
-                  <path d="M10 20 C10 14 16 12 16 16 C16 20 22 18 22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                  <circle cx="10" cy="21" r="2" fill="currentColor" />
-                  <circle cx="22" cy="11" r="2" fill="currentColor" />
-                </svg>
+                <img src="/srijan-logo.jpg" alt="SRIJAN Logo" width="28" height="28" style={{ borderRadius: '50%', objectFit: 'cover' }} />
                 <span>SRIJAN</span>
               </div>
               <p className={styles.footerTagline}>

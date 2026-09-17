@@ -48,12 +48,7 @@ export default function PortalLayout({ children, navSections, portalLabel }: Por
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''}`}>
         <div className={styles.sidebarLogo}>
           <Link href="/" className={styles.logoMark} aria-label="Back to home">
-            <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="1" y="1" width="30" height="30" rx="6" stroke="currentColor" strokeWidth="2"/>
-              <path d="M10 20 C10 14 16 12 16 16 C16 20 22 18 22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="10" cy="21" r="2" fill="currentColor"/>
-              <circle cx="22" cy="11" r="2" fill="currentColor"/>
-            </svg>
+            <img src="/srijan-logo.jpg" alt="SRIJAN Logo" width="36" height="36" style={{ borderRadius: '50%', objectFit: 'cover' }} />
           </Link>
           <div>
             <div className={styles.logoTitle}>SRIJAN</div>
