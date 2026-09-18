@@ -2,7 +2,7 @@
 
 <img src="assets/srijan-logo.jpg" alt="SRIJAN Logo" width="180" />
 
-# 🏛️ SRIJAN
+#  SRIJAN
 
 ### Societal Research, Innovation & Jharkhand Academic Network
 
