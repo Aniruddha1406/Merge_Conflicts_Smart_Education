@@ -138,7 +138,7 @@ export default function ProjectDetailPage() {
             <button className="btn btn-outline btn-sm" onClick={() => setAddMilestoneOpen(true)}>+ Add Milestone</button>
           </div>
           <div className={styles.milestones}>
-            {project.milestones.map((m, i) => (
+            {project.milestones.map((m: any, i: number) => (
               <div key={m.id} className={`${styles.milestone} ${m.completed ? styles.done : ''}`}>
                 <div className={styles.mNum}>{String(i + 1).padStart(2, '0')}</div>
                 <div className={styles.mContent}>
@@ -159,7 +159,7 @@ export default function ProjectDetailPage() {
                   </div>
 
                   <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
-                    {m.deliverables.map(d => <span key={d} className="tag">{d}</span>)}
+                    {m.deliverables.map((d: string) => <span key={d} className="tag">{d}</span>)}
                   </div>
 
                   {!m.completed && (
@@ -208,7 +208,7 @@ export default function ProjectDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {project.team.map(m => (
+                    {project.team.map((m: any) => (
                       <tr key={m.id}>
                         <td className="font-medium" style={{ color: 'var(--cf-800)' }}>{m.name}</td>
                         <td><span className="tag">{m.role}</span></td>
@@ -223,7 +223,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Verification */}
-          {project.milestones.some(m => m.title.includes('Verification')) && (
+          {project.milestones.some((m: any) => m.title.includes('Verification')) && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>On-Ground Verification</h2>
               <div className="card card-accent">
