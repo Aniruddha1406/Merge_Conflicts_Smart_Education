@@ -1,6 +1,6 @@
 import { DASHBOARD_STATS, SUBMISSIONS as INITIAL_SUBMISSIONS } from '@/lib/mockData';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 function getMockSubmissions() {
   if (typeof window !== 'undefined') {
@@ -61,7 +61,31 @@ async function safeFetch(url: string, opts?: any) {
           similar: []
         });
       }
-      if (url.includes('/submit')) return mockJson({ success: true, challengeId: 'SUB-NEW' });
+      if (url.includes('/submit')) {
+        let text = 'Mock challenge submitted due to backend failure';
+        try {
+          if (opts?.body) {
+            const body = JSON.parse(opts.body);
+            if (body.text) text = body.text;
+          }
+        } catch(e) {}
+        const newSub = {
+          id: 'SUB-' + Math.floor(Math.random() * 10000),
+          title: text.substring(0, 30) + '...',
+          description: text,
+          date: new Date().toISOString().split('T')[0],
+          domain: 'Education',
+          status: 'Under Review',
+          submittedBy: 'U-CITIZEN-001',
+          urgencyScore: 85,
+          location: 'Ranchi, Jharkhand',
+          endorsements: 1,
+          aiTags: ['Education', 'Mock']
+        };
+        SUBMISSIONS.unshift(newSub);
+        saveMockSubmissions(SUBMISSIONS);
+        return mockJson({ success: true, challengeId: newSub.id });
+      }
       if (url.includes('/classify')) return mockJson({ category: 'Education', confidence: 0.9 });
       if (url.includes('/similar')) return mockJson([]);
       if (url.includes('/challenges/')) {

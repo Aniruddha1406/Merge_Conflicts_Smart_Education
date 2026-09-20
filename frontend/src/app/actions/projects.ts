@@ -1,6 +1,6 @@
 import { PROJECTS as INITIAL_PROJECTS, SUBMISSIONS as INITIAL_SUBMISSIONS } from '@/lib/mockData';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 function getMockProjects() {
   if (typeof window !== 'undefined') {

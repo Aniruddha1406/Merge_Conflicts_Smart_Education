@@ -1,6 +1,6 @@
 import { INITIAL_FACULTY, INITIAL_STUDENTS } from '@/lib/mockData';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 function getMockPersonnel() {
   if (typeof window !== 'undefined') {

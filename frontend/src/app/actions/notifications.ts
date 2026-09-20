@@ -1,6 +1,6 @@
 // Client-side wrappers for the new Express backend
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 async function safeFetch(url: string, opts?: any) {
   try {
