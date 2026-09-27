@@ -1,35 +1,97 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useStore } from '@/lib/store'
 import { ROUTING_RECOMMENDATIONS } from '@/lib/mockData'
+import { getChallengeById } from '@/app/actions/challenges'
+import { acceptChallenge, createProject } from '@/app/actions/projects'
+import { useAuth } from '@/lib/authContext'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './page.module.css'
+
+function getDateOffset(days: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  return d.toISOString().split('T')[0]
+}
 
 export default function QueueDetailPage() {
   const params = useParams()
   const id = params?.id as string
-  const { state, assign } = useStore()
 
-  const sub = state.submissions.find(s => s.id === id)
-  const recs = ROUTING_RECOMMENDATIONS[id] ?? []
+  const [sub, setSub] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [mentor, setMentor] = useState('Prof. Anita Sharma')
+
+  const { user } = useAuth()
+  const instId = user?.institution?.id || 'INST-001'
+  const instShortName = user?.institution?.shortName || 'BIT Mesra'
+
+  const recs = ROUTING_RECOMMENDATIONS[id] ?? []
+
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    getChallengeById(id).then((data) => {
+      setSub(data && data.id ? data : null)
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="empty-state" style={{ padding: 'var(--space-20)' }}>
+        <div className="empty-state-mark">⏳</div>
+        <h5>Loading challenge...</h5>
+      </div>
+    )
+  }
 
   if (!sub) return (
     <div className="empty-state" style={{ padding: 'var(--space-20)' }}>
       <div className="empty-state-mark">?</div>
       <h5>Challenge not found</h5>
+      <p className="text-sm text-secondary" style={{ marginTop: 'var(--space-2)' }}>
+        The challenge ID <strong>{id}</strong> could not be found.
+      </p>
       <Link href="/university/queue" className="btn btn-outline btn-sm" style={{ marginTop: 'var(--space-4)' }}>Back to Queue</Link>
     </div>
   )
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const top = recs[0]
-    if (top) assign(sub!.id, top.institution.shortName, top.fitScore)
-    setSubmitted(true)
+    setIsSubmitting(true)
+    try {
+      await acceptChallenge(sub.id)
+
+      await createProject({
+        challengeId: sub.id,
+        title: sub.title,
+        institutionId: instId,
+        institutionName: instShortName,
+        targetDate: getDateOffset(180),
+        team: [
+          { name: mentor, role: 'Faculty Mentor', department: 'Lead PI', creditHours: 0 },
+          { name: 'Ravi Kumar', role: 'Student Lead', department: 'M.Tech III', creditHours: 60 },
+          { name: 'Priya Ekka', role: 'Student Researcher', department: 'M.Tech II', creditHours: 30 },
+          { name: 'Deepak Nath', role: 'Student', department: 'B.Tech IV', creditHours: 30 },
+        ],
+        milestones: [
+          { id: `M-1-${Date.now()}`, title: 'Phase 1: Ground Survey & Need Assessment', description: 'Conduct field survey, baseline sample collection, and stakeholder interviews', dueDate: getDateOffset(30), studentHours: 40, deliverables: ['Baseline Survey Report', 'GIS Site Map'] },
+          { id: `M-2-${Date.now()}`, title: 'Phase 2: Tech Design & Architecture', description: 'Develop initial blueprints, software architecture, and system models', dueDate: getDateOffset(60), studentHours: 60, deliverables: ['Design Document', 'Mockups'] },
+          { id: `M-3-${Date.now()}`, title: 'Phase 3: Prototype Development', description: 'Build minimum viable product (MVP) or physical prototype for testing', dueDate: getDateOffset(120), studentHours: 120, deliverables: ['Working Prototype', 'Source Code/Schematics'] },
+          { id: `M-4-${Date.now()}`, title: 'Phase 4: Field Testing & Verification', description: 'Deploy prototype on-site, gather feedback, and verify resolution', dueDate: getDateOffset(150), studentHours: 80, deliverables: ['Test Results', 'Final Report'] },
+        ],
+      })
+
+      setSubmitted(true)
+    } catch (e) {
+      console.error('Failed to accept challenge:', e)
+      alert('Failed to create project. See console for details.')
+    }
+    setIsSubmitting(false)
   }
 
   return (
@@ -61,7 +123,11 @@ export default function QueueDetailPage() {
                 </div>
                 <div>
                   <span className="text-xs text-secondary">Submitted</span>
-                  <p className="text-sm font-medium">{new Date(sub.submittedAt).toLocaleDateString('en-IN')}</p>
+                  <p className="text-sm font-medium">
+                    {sub.submittedAt || sub.date
+                      ? new Date(sub.submittedAt || sub.date).toLocaleDateString('en-IN')
+                      : '—'}
+                  </p>
                 </div>
                 <div>
                   <span className="text-xs text-secondary">Submitted By</span>
@@ -110,9 +176,12 @@ export default function QueueDetailPage() {
                 <div className="empty-state-mark" style={{ borderColor: 'var(--ai-500)', color: 'var(--ai-600)', margin: '0 auto var(--space-4)' }}>✓</div>
                 <h3 style={{ fontFamily: 'var(--font-display)', color: 'var(--cf-800)', marginBottom: 'var(--space-3)' }}>Challenge Accepted</h3>
                 <p className="text-sm text-secondary" style={{ marginBottom: 'var(--space-5)' }}>
-                  The challenge has been formally assigned and the Government Admin has been notified.
+                  The challenge has been formally assigned and a new project has been created.
                 </p>
-                <Link href="/university/projects" className="btn btn-primary btn-sm">Go to Active Projects</Link>
+                <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Link href="/university/projects" className="btn btn-primary btn-sm">Go to Active Projects</Link>
+                  <Link href="/university" className="btn btn-outline btn-sm">Dashboard</Link>
+                </div>
               </div>
             </div>
           ) : (
@@ -124,7 +193,7 @@ export default function QueueDetailPage() {
                 <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Assigning to Institution</label>
-                    <input className="form-input" value={recs[0]?.institution.shortName ?? 'BIT Mesra'} readOnly style={{ background: 'var(--warm-50)' }} />
+                    <input className="form-input" value={instShortName} readOnly style={{ background: 'var(--warm-50)' }} />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">Faculty Mentor</label>
@@ -156,7 +225,9 @@ export default function QueueDetailPage() {
                 </div>
                 <div className="card-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
                   <Link href="/university/queue" className="btn btn-outline btn-sm">Decline</Link>
-                  <button type="submit" className="btn btn-primary btn-sm">Accept Challenge</button>
+                  <button type="submit" className="btn btn-primary btn-sm" disabled={isSubmitting}>
+                    {isSubmitting ? 'Creating Project...' : 'Accept Challenge'}
+                  </button>
                 </div>
               </form>
             </div>

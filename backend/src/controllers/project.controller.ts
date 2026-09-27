@@ -49,9 +49,10 @@ export const createProject = async (req: Request, res: Response) => {
 
 export const acceptChallenge = async (req: Request, res: Response) => {
   try {
-    challengeRepo.updateStatus((req.params.id as string), 'In Progress');
+    const { getDb } = await import('../db/index');
+    getDb().prepare(`UPDATE challenges SET status = 'Assigned to Institution' WHERE id = ?`).run(req.params.id as string);
     res.json({ success: true });
-  } catch {
+  } catch (err) {
     res.status(500).json({ success: false });
   }
 };
@@ -80,7 +81,7 @@ export const addMilestone = async (req: Request, res: Response) => {
 };
 
 export const getAllProjects = async (req: Request, res: Response) => {
-  res.json([]);
+  res.json(projectRepo.findAll());
 };
 
 export const getProjectById = async (req: Request, res: Response) => {

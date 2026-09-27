@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { getAllProjects } from '@/app/actions/projects'
+import { useAuth } from '@/lib/authContext'
 import styles from './page.module.css'
 
 const STATUS_BADGE: Record<string, string> = {
@@ -26,6 +27,10 @@ interface DisplayProject {
 }
 
 export default function ProjectsPage() {
+  const { user } = useAuth()
+  const instId = user?.institution?.id || 'INST-001'
+  const instShortName = user?.institution?.shortName || 'BIT Mesra'
+
   const [projects, setProjects] = useState<DisplayProject[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -33,14 +38,26 @@ export default function ProjectsPage() {
     setLoading(true)
     try {
       const rows = await getAllProjects()
-      setProjects(rows as any[])
+      const mine = (rows as any[]).filter((x: any) =>
+        x.institution_id === instId ||
+        x.institutionId === instId ||
+        x.institution === instShortName ||
+        x.institution_name === instShortName
+      )
+      setProjects(mine as DisplayProject[])
     } catch (e) {
       console.error('Failed to load projects from DB', e)
     }
     setLoading(false)
-  }, [])
+  }, [instId, instShortName])
 
   useEffect(() => { loadData() }, [loadData])
+
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') loadData() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [loadData])
 
   return (
     <div className={styles.page}>
@@ -48,9 +65,12 @@ export default function ProjectsPage() {
         <div>
           <h1 className={styles.title}>Active Projects</h1>
           <p className={styles.subtitle}>
-            {loading ? 'Loading projects from database...' : `${projects.length} project(s) from database.`}
+            {loading ? 'Loading projects...' : `${projects.length} project(s) for ${instShortName}.`}
           </p>
         </div>
+        <Link href="/university/queue" className="btn btn-primary btn-sm">
+          + Accept Challenge
+        </Link>
       </div>
 
       <div className={styles.grid}>
@@ -129,6 +149,9 @@ export default function ProjectsPage() {
                 <div className="empty-state-mark">0</div>
                 <h5>No projects yet</h5>
                 <p className="text-sm text-secondary">Accept a challenge from the queue to create your first project.</p>
+                <Link href="/university/queue" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-4)' }}>
+                  Go to Challenge Queue
+                </Link>
               </div>
             </div>
           </div>
