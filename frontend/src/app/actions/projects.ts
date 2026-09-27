@@ -62,6 +62,7 @@ async function safeFetch(url: string, opts?: any) {
         ...p,
         target_date: p.targetDate || p.target_date,
         institution_name: p.institution || p.institution_name,
+        institution_id: p.institution_id || p.institutionId,
         industry_partner_name: p.industryPartner || p.industry_partner_name
       });
 
@@ -130,6 +131,8 @@ async function safeFetch(url: string, opts?: any) {
             submissionId: body.challengeId,
             title: body.title,
             institution: body.institutionName || 'BIT Mesra',
+            institution_id: body.institutionId || 'INST-001',
+            institutionId: body.institutionId || 'INST-001',
             status: 'Planning',
             startDate: new Date().toISOString().split('T')[0],
             targetDate: body.targetDate || '2027-03-31',

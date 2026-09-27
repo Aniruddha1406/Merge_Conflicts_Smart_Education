@@ -36,14 +36,28 @@ export default function UniversityDashboard() {
       ])
       
       setQueue(q) // Store the full queue
-      setProjects(p.filter((x: any) => x.institution_id === instId || x.institution === instShortName))
+      setProjects(p.filter((x: any) =>
+        x.institution_id === instId ||
+        x.institutionId === instId ||
+        x.institution === instShortName ||
+        x.institution_name === instShortName
+      ))
     } catch (e) {
       console.error('Failed to load university data', e)
     }
     setLoading(false)
-  }, [instId])
+  }, [instId, instShortName])
 
   useEffect(() => { loadData() }, [loadData])
+
+  // Re-fetch when the user navigates back to this tab (e.g. after accepting from queue page)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') loadData()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [loadData])
 
   const activeProjects = projects.filter(p => {
     let dynamicStatus = p.status
