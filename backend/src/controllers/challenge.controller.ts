@@ -216,3 +216,42 @@ export const getValidatedChallengesForAllocation = async (req: Request, res: Res
   const rows = db.prepare(`SELECT * FROM challenges WHERE status = 'Validated' ORDER BY urgency_score DESC, submitted_at DESC`).all();
   res.json(rows);
 };
+
+export const seedDemo = async (req: Request, res: Response) => {
+  const { getDb } = await import('../db/index');
+  const db = getDb();
+  const nowStr = now();
+  const generateId = () => 'CH-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 900000 + 100000);
+  
+  const challenges = [
+    { title: 'Lack of Cold Storage for Tomato Farmers', desc: 'Farmers in Pithoria are forced to sell tomatoes at distressed prices due to lack of cold storage. Tons of produce rot during summer. Need a low-cost, off-grid cooling solution.', domain: 'Agriculture', district: 'Ranchi', keywords: 'farming,cold storage,tomatoes,spoilage,solar' },
+    { title: 'Frequent Elephant Intrusions in Villages', desc: 'Wild elephants from the Dalma sanctuary frequently destroy crops and huts in nearby villages. Traditional methods are failing. We need an early warning system or non-harmful deterrent.', domain: 'Environment', district: 'East Singhbhum', keywords: 'elephants,wildlife,crops,warning system,deterrent' },
+    { title: 'Arsenic Contamination in Tubewells', desc: 'Recent tests showed high arsenic levels in drinking water tubewells in Sahibganj. Skin lesions are becoming common. We need affordable household filters.', domain: 'Water', district: 'Sahibganj', keywords: 'arsenic,water,contamination,tubewells,filters' },
+    { title: 'Poor Connectivity During Monsoons', desc: 'The temporary bridge over South Koel river washes away every monsoon, cutting off 5 villages from the block headquarters. Students cannot reach school for months.', domain: 'Infrastructure', district: 'Gumla', keywords: 'bridge,monsoon,river,connectivity,students' }
+  ];
+
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO challenges (
+      id, title, description, domain, district, reporter_type,
+      submitted_by_id, submitted_by_name, submitted_at, status,
+      endorsements, urgency_score, ai_category, ai_keywords, validated_at, updated_at
+    ) VALUES (
+      ?, ?, ?, ?, ?, 'citizen',
+      'U-CITIZEN-001', 'Priya Mahato', ?, 'Validated',
+      ?, ?, ?, ?, ?, ?
+    )
+  `);
+
+  try {
+    for (const c of challenges) {
+      insert.run(
+        generateId(), c.title, c.desc, c.domain, c.district,
+        nowStr, Math.floor(Math.random() * 50 + 50), Math.floor(Math.random() * 20 + 80),
+        c.domain, c.keywords, nowStr, nowStr
+      );
+    }
+    res.json({ success: true, message: 'Database seeded with demo challenges.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err });
+  }
+};

@@ -16,6 +16,7 @@ router.get('/:id/routing', challengeController.getRoutingRecommendations);
 router.post('/:id/verify', challengeController.submitVerification);
 router.post('/:id/approve-verify', challengeController.approveVerification);
 
+router.get('/seed/demo', challengeController.seedDemo);
 router.get('/', challengeController.getAllChallenges);
 router.get('/:id', challengeController.getChallengeById);
 router.get('/user/:userId', challengeController.getChallengesByUser);
