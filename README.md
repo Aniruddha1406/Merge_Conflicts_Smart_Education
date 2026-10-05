@@ -701,11 +701,12 @@ Custom Google Fonts loaded for script rendering:
 
 ---
 
-## 📄 License
+## License
 
-This project is built for the **Smart India Hackathon 2026** under the problem statement from the **Department of Higher and Technical Education, Government of Jharkhand**.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
+
 
 <div align="center">
 
