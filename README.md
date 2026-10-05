@@ -44,7 +44,7 @@
 - [Internationalization (i18n)](#-internationalization-i18n)
 - [Innovation Highlights](#-innovation-highlights)
 - [Why SRIJAN?](#-why-srijan)
-- [Team](#-team)
+
 - [License](#-license)
 
 ---
@@ -686,20 +686,6 @@ Custom Google Fonts loaded for script rendering:
 
 ---
 
-## 👥 Team
-
-<div align="center">
-
-**Team Merge_Conflicts**
-
-| Member | Role |
-|--------|------|
-| **Pratham Borgaonkar** | Full Stack Developer & Team Lead |
-| **Team Members** | Smart India Hackathon 2026 |
-
-</div>
-
----
 
 ## License
 
